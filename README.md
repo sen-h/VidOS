@@ -22,3 +22,11 @@ sutable videos can be made using ffmpeg and one of many suitable AV1 and opus en
 after a new video is installed, cd into the buildroot dir and run make to rebuild.
 
 Cheers!
+
+
+--licence 
+
+This work is dual licenced under 0BSD and gpl v3
+
+use whatever.
+
