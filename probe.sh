@@ -1,6 +1,6 @@
 #!/bin/sh
-VID_CODEC=$(ffprobe -hide_banner -loglevel 31 -show_streams $1 | grep -w codec_name | sed -n 1p)
-AUD_CODEC=$(ffprobe -hide_banner -loglevel 31 -show_streams $1 | grep -w codec_name | sed -n 2p)
+VID_CODEC=$(./ffprobe -hide_banner -loglevel 0 -show_streams $1 | grep -w codec_name | sed -n 1p)
+AUD_CODEC=$(./ffprobe -hide_banner -loglevel 0 -show_streams $1 | grep -w codec_name | sed -n 2p)
 
 if [ $VID_CODEC = "codec_name=av1" ]; then
   echo "video passed"
