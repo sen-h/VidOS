@@ -1,6 +1,6 @@
 #!/bin/sh
 #download and unpack latest buildroot release
-BUILDROOT_LATEST=buildroot-2021.02.1
+BUILDROOT_LATEST=buildroot-2021.02.3
 wget -c https://buildroot.org/downloads/$BUILDROOT_LATEST.tar.gz &&
 tar -xf $BUILDROOT_LATEST.tar.gz &&
 rm $BUILDROOT_LATEST.tar.gz &&
