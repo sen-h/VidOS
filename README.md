@@ -13,7 +13,9 @@ Also, it occurs to me that AV1 video is approximately the same bit rate as 1x CD
 One could (and I have) play a 1080P video off of a CD. 
 
 Also, I just recently learned that this is not an original idea (go figure): [Movix](http://movix.sourceforge.net/Docs/eMoviX/countries/en/main.html)
+
 Movix/eMovix appears to have been abandoned mid 2006, yet there still exists a plugin for it inside of [k3b](https://apps.kde.org/k3b/).
+
 An eventual goal is to upstream this project into k3b as an official plugin.
 
 # Theory of operation
