@@ -32,4 +32,5 @@ cp vidos_av1_config $BUILDROOT_LATEST/.config &&
 #set toolchain path automagically
 sed -i '160 a BR2_TOOLCHAIN_EXTERNAL_PATH="'$PWD'/x86_64-buildroot-linux-musl_sdk-buildroot"' $BUILDROOT_LATEST/.config &&
 cd $BUILDROOT_LATEST/ &&
+make clean &&
 make -j$(nproc)
