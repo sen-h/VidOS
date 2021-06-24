@@ -4,10 +4,10 @@ BUILDROOT_LATEST=buildroot-2021.02.3
 wget -c https://buildroot.org/downloads/$BUILDROOT_LATEST.tar.gz &&
 tar -xf $BUILDROOT_LATEST.tar.gz &&
 rm $BUILDROOT_LATEST.tar.gz &&
-echo "finished unpacking "$BUILDROOT_LATEST
+echo "finished unpacking "$BUILDROOT_LATEST &&
 #move configuration dir into board dir
 cp -r vidos_av1 $BUILDROOT_LATEST/board/ &&
-echo "moved vidos_av1 dir to "$BUILDROOT_LATEST
+echo "moved vidos_av1 dir to "$BUILDROOT_LATEST &&
 
 #move configuration for custom built toolchain (sdk) to .config
 cp sdk_config  $BUILDROOT_LATEST/.config &&
@@ -16,7 +16,7 @@ cd $BUILDROOT_LATEST/ &&
 #build everything including toolchain, then specifically build a reloacatble toolchain (sdk)
 
 
-#echo "attempting to build SDK"
+#echo "attempting to build SDK" &&
 make -j$(nproc) &&
 make sdk -j$(nproc) &&
 echo "Built SDK sucessfully"
