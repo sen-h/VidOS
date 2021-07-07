@@ -1,0 +1,17 @@
+--- a/core/isolinux.asm	2014-10-06 16:27:44.000000000 +0000
++++ b/core/isolinux.asm	2021-05-16 21:45:57.897152657 +0000
+@@ -1046,11 +1046,9 @@
+ ; -----------------------------------------------------------------------------
+ 
+ 		global syslinux_banner, copyright_str
+-syslinux_banner	db CR, LF, MY_NAME, ' ', VERSION_STR, ' ', DATE_STR, ' ', 0
+-copyright_str   db ' Copyright (C) 1994-'
+-		asciidec YEAR
+-		db ' H. Peter Anvin et al', CR, LF, 0
+-isolinux_str	db 'isolinux: ', 0
++syslinux_banner	db ' ', 0
++copyright_str   db ' '
++isolinux_str	db ' ', 0
+ %ifdef DEBUG_MESSAGES
+ startup_msg:	db 'Starting up, DL = ', 0
+ spec_ok_msg:	db 'Loaded spec packet OK, drive = ', 0
