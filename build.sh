@@ -20,6 +20,7 @@ cd $BUILDROOT_LATEST/ &&
 make olddefconfig &&
 make -j$(nproc) &&
 make sdk -j$(nproc) &&
+make clean &&
 echo "Built SDK sucessfully"
 #copy and unpack sdk to project root directory
 cp output/images/x86_64-buildroot-linux-musl_sdk-buildroot.tar.gz ../ &&
@@ -33,6 +34,5 @@ cp vidos_av1_config $BUILDROOT_LATEST/.config &&
 #set toolchain path automagically
 sed -i '6 a BR2_TOOLCHAIN_EXTERNAL_PATH="'$PWD'/x86_64-buildroot-linux-musl_sdk-buildroot"' $BUILDROOT_LATEST/.config &&
 cd $BUILDROOT_LATEST/ &&
-make clean &&
 make olddefconfig &&
 make -j$(nproc)
