@@ -1,0 +1,18 @@
+--- vidos_base_config
++++ vidos_av1_config
+@@ -26,6 +26,7 @@
+ # BR2_PACKAGE_ALSA_UTILS_ALSACTL is not set
+ BR2_PACKAGE_ALSA_UTILS_AMIXER=y
+ # BR2_PACKAGE_FFMPEG_FFMPEG is not set
++BR2_PACKAGE_FFMPEG_EXTRACONF="--disable-everything --enable-libdav1d --enable-decoder='libdav1d,opus' --enable-parser='av1,opus' --enable-demuxer=matroska --enable-protocol='file' --enable-outdev='fbdev,alsa,oss' --pkg-config-flags=\"--static\""
+ BR2_PACKAGE_MPV=y
+ BR2_PACKAGE_LINUX_FIRMWARE=y
+ BR2_PACKAGE_LINUX_FIRMWARE_AMDGPU=y
+@@ -36,6 +37,7 @@
+ BR2_PACKAGE_LIBDRM_RADEON=y
+ BR2_PACKAGE_LIBDRM_AMDGPU=y
+ BR2_PACKAGE_LIBDRM_NOUVEAU=y
++BR2_PACKAGE_DAV1D=y
+ # BR2_PACKAGE_IFUPDOWN_SCRIPTS is not set
+ BR2_PACKAGE_UTIL_LINUX_LIBMOUNT=y
+ BR2_TARGET_ROOTFS_CPIO_LZ4=y

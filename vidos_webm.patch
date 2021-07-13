@@ -1,0 +1,6 @@
+--- vidos_base_config
++++ vidos_webm_config
+@@ -28,0 +29 @@
++BR2_PACKAGE_FFMPEG_EXTRACONF="--disable-everything --enable-libvpx --enable-decoder='vp8,vp9,opus' --enable-parser='vp8,vp9,opus' --enable-demuxer=matroska --enable-protocol=file --enable-outdev='fbdev,alsa,oss'"
+@@ -38,0 +40 @@
++BR2_PACKAGE_LIBVPX=y
