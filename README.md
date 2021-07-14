@@ -1,6 +1,6 @@
 # VidOS
 
-Complete single purpose linux system that just plays a video encoded in AV1 and Opus.
+Complete single purpose linux system that just plays a video encoded in AV1, webm(vp8/vp9) with Opus audio.
 At the present moment it is a buildroot config (based very loosely off the pc_defconfig)
 and some config files and scripts that assembles an entire os and hybrid iso (~38MB)
 as a kernel binary with an attached initramfs, bootloader and the video itself. 
@@ -20,8 +20,7 @@ An eventual goal is to upstream this project into k3b as an official plugin.
 
 # Theory of operation
 
-A minimal linux system is built with alsa-lib, libdrm, various hardware drivers, 
-mpv etc..
+A minimal linux system is built with alsa-lib, libdrm, mpv etc..
 The entire root fileystem is then lz4 compressed and linked into the kernel binary.
 Upon bootup, an init script initializes audio stuff, mounts whatever boot media was used and then runs mpv with the drm option to output directly to a framebuffer.
 After the video ends poweroff is called and the device shuts down.
@@ -34,11 +33,10 @@ eventually I would love to migrate to some sort of efi boot stub situation thoug
 # Kernel
 
 The kernel and its linked-in initramfs are with absolute minimum support for everything required. 
-Unfortunately it has ballooned in size (from ~12MB to ~38MB) now that graphics firmware (the linux-firmware package) has been included.
-
-
+~~Unfortunately it has ballooned in size (from ~12MB to ~38MB) now that graphics firmware (the linux-firmware package) has been included.~~
+[fcb0832](https://github.com/sen-h/VidOS/commit/fcb08325c5a12c3201de5d91cba4fd961ddab475): linux-firmware has been moved to its own directory on the boot media and is acessed through a symlink in the initramfs.
+kernel is back down to ~16MB.
 # File System 
-
 The video lives in a folder on the root of the iso9660 filesytem, next to the kernel and bootloader.
 Previous versions simply installed the video into the initramfs,
 but this yields longer boot times as the whole kernel blob gets bigger depending on the size of your video.
@@ -48,7 +46,13 @@ Changing out the video is as simple as putting a new one in the video folder and
 
 # Getting Started
 
-Run ./build.sh 
+Run 'build.sh' *video format*
+
+video formats:
+
+'av1' 		builds with support for av1 video + opus audio in mkv container
+
+'webm' 		builds with support for vp8/vp9 video + opus audio in mkv container
 
 This will download buildroot, build a relocateable toolchain (sdk) 
 and do some various setup functions as well as building an image.
