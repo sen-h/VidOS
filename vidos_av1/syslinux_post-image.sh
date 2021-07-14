@@ -16,6 +16,10 @@ cp $BOARD_DIR/video.mkv $BINARIES_DIR/CD_root/video/video.mkv
 cp $BINARIES_DIR/syslinux/isolinux.bin $BINARIES_DIR/CD_root/isolinux
 cp $SYSLINUX_PATH/bios/mbr/isohdpfx.bin $BINARIES_DIR
 cp $SYSLINUX_PATH/bios/com32/elflink/ldlinux/ldlinux.c32 $BINARIES_DIR/CD_root/isolinux
+cp -r $BINARIES_DIR/firmware $BINARIES_DIR/CD_root
+rm -r $BINARIES_DIR/firmware
+rm -r $TARGET_DIR/lib/firmware
+rm -r $BUILD_DIR/linux-firmware-20201022/
 cp $BINARIES_DIR/bzImage $BINARIES_DIR/CD_root/kernel
 echo "copied files into CD_root directory"
 cd $BINARIES_DIR
@@ -25,5 +29,4 @@ cd $BINARIES_DIR
 xorriso -as mkisofs -o output.iso -isohybrid-mbr isohdpfx.bin \
   -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table \
   CD_root
-
 
