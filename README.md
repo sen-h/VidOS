@@ -34,8 +34,7 @@ eventually I would love to migrate to some sort of efi boot stub situation thoug
 
 The kernel and its linked-in initramfs are with absolute minimum support for everything required. 
 ~~Unfortunately it has ballooned in size (from ~12MB to ~38MB) now that graphics firmware (the linux-firmware package) has been included.~~
-[fcb0832](https://github.com/sen-h/VidOS/commit/fcb08325c5a12c3201de5d91cba4fd961ddab475): linux-firmware has been moved to its own directory on the boot media and is acessed through a symlink in the initramfs.
-kernel is back down to ~16MB.
+**[fcb0832](https://github.com/sen-h/VidOS/commit/fcb08325c5a12c3201de5d91cba4fd961ddab475): linux-firmware has been moved to its own directory on the boot media and is acessed through a symlink in the initramfs. kernel is back down to ~16MB.**
 # File System 
 The video lives in a folder on the root of the iso9660 filesytem, next to the kernel and bootloader.
 Previous versions simply installed the video into the initramfs,
