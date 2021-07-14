@@ -2,7 +2,7 @@
 
 Complete single purpose linux system that just plays a video encoded in AV1, webm(vp8/vp9) with Opus audio.
 At the present moment it is a buildroot config (based very loosely off the pc_defconfig)
-and some config files and scripts that assembles an entire os and hybrid iso (~38MB)
+and some config files and scripts that assembles an entire os and hybrid iso (~70MB)
 as a kernel binary with an attached initramfs, bootloader and the video itself. 
 
 # Why?
@@ -22,7 +22,9 @@ An eventual goal is to upstream this project into k3b as an official plugin.
 
 A minimal linux system is built with alsa-lib, libdrm, mpv etc..
 The entire root fileystem is then lz4 compressed and linked into the kernel binary.
-Upon bootup, an init script initializes audio stuff, mounts whatever boot media was used and then runs mpv with the drm option to output directly to a framebuffer.
+Upon bootup, an init script initializes audio stuff, mounts whatever boot media was used, 
+loads binary blob graphics drivers (if applicable) 
+and then runs mpv with the drm option to output directly to a framebuffer. 
 After the video ends poweroff is called and the device shuts down.
 
 # Bootloader
@@ -34,13 +36,14 @@ eventually I would love to migrate to some sort of efi boot stub situation thoug
 
 The kernel and its linked-in initramfs are with absolute minimum support for everything required. 
 <del>Unfortunately it has ballooned in size (from ~12MB to ~38MB) now that graphics firmware (the linux-firmware package) has been included.</del>
+
 *[fcb0832](https://github.com/sen-h/VidOS/commit/fcb08325c5a12c3201de5d91cba4fd961ddab475): linux-firmware has been moved to its own directory on the boot media and is acessed through a symlink in the initramfs. kernel is back down to ~16MB.*
 # File System 
 The video lives in a folder on the root of the iso9660 filesytem, next to the kernel and bootloader.
 Previous versions simply installed the video into the initramfs,
 but this yields longer boot times as the whole kernel blob gets bigger depending on the size of your video.
 This also required recompilation of the kernel every time a new video is desired.
-Now the kernel is a fixed size (~38MB) and it mounts the boot media automatically and plays directly off the disk.
+Now the kernel is a fixed size (~16MB) and it mounts the boot media automatically and plays directly off the disk.
 Changing out the video is as simple as putting a new one in the video folder and rebuilding the iso. See probe.sh for more details
 
 # Getting Started
