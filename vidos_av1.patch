@@ -1,5 +1,7 @@
 --- vidos_base_config
 +++ vidos_av1_config
+@@ -17,0 +18 @@
++BR2_ROOTFS_POST_SCRIPT_ARGS="av1"
 @@ -29,0 +30 @@
 +BR2_PACKAGE_FFMPEG_EXTRACONF="--disable-everything --enable-libdav1d --enable-decoder='libdav1d,opus' --enable-parser='av1,opus' --enable-demuxer=matroska --enable-protocol='file' --enable-outdev='fbdev,alsa,oss' --pkg-config-flags=\"--static\""
 @@ -39,0 +41 @@
