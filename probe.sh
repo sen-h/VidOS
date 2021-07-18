@@ -22,7 +22,7 @@ done
 if [ -z $VIDOS_ROOTFS ]; then
 	echo "vidos root filesystem has not been built! Please run build.sh."
 	exit 1
-elif [ $VIDOS_ROOTFS != "vidos_rootfs_"$VID_CODEC ]; then
+elif [ $VIDOS_ROOTFS != "vidos_rootfs_"$VID_CODEC ] && [ $IS_SUPPORTED = 1 ]; then
 	echo "video is not of correct type for currently built VidOS"
 	echo "video requires vidos_"$VID_CODEC
 	exit 1
