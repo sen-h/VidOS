@@ -14,6 +14,8 @@ mkdir -p $BINARIES_DIR/CD_root/firmware
 echo "created CD_root directory"
 cp $BOARD_DIR/isolinux.cfg $BINARIES_DIR/CD_root/isolinux
 cp $BOARD_DIR/video.mkv $BINARIES_DIR/CD_root/video/video.mkv
+ls $BINARIES_DIR/CD_root/video/ > $BINARIES_DIR/playlist.txt
+cp $BINARIES_DIR/playlist.txt $BINARIES_DIR/CD_root/video/
 cp $BINARIES_DIR/syslinux/isolinux.bin $BINARIES_DIR/CD_root/isolinux
 cp $SYSLINUX_PATH/bios/mbr/isohdpfx.bin $BINARIES_DIR
 cp $SYSLINUX_PATH/bios/com32/elflink/ldlinux/ldlinux.c32 $BINARIES_DIR/CD_root/isolinux

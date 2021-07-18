@@ -26,7 +26,7 @@ done
 
 	mount $MEDIA_SRC /media
         amixer sset Master unmute 0.0dB
-        mpv -vo=drm /media/video/video.mkv
+        mpv -vo=drm --playlist=/media/video/playlist.txt
 	poweroff
 
     ;;
