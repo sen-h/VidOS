@@ -1,19 +1,42 @@
-#!/bin/sh
+#!/bin/bash
 BUILDROOT=buildroot-2021.05
+BUILDROOT_IMAGE_PATH=$BUILDROOT/output/images
 TOOLCHAIN=x86_64-buildroot-linux-musl_sdk-buildroot
-
+SUPPORTED_SYSTEM_TYPES=("av1" "webm")
+IS_SUPPORTED=0
 
 if [ -z $1 ]; then
-	echo "no configuration specifed, please specify either av1 or webm"&&
-	exit 1
-elif [ $1 = "av1" ] || [ $1 = "webm" ]; then
-	echo "building VidOS distribution with "$1" support"
-else
-	echo $1" is not a supported configuration, please specify either av1 or webm"&&
+	echo "no configuration specifed, please specify one of the following system types: "${SUPPORTED_SYSTEM_TYPES[@]}&&
 	exit 1
 fi
 
-test -e "$BUILDROOT"; BUILDROOT_EXISTS=$?
+for SYSTEM_TYPE in "${SUPPORTED_SYSTEM_TYPES[@]}"
+do
+	if [ $1 = $SYSTEM_TYPE ]; then
+		IS_SUPPORTED=1
+	fi
+done
+
+if [ $IS_SUPPORTED = 0 ];then
+	echo $1" is not a supported configuration, please specify one of the follwing system types: "${SUPPORTED_SYSTEM_TYPES[@]}&&
+	exit 1
+fi
+
+
+test -e $BUILDROOT_IMAGE_PATH; BUILDROOT_IMAGE_PATH_EXISTS=$?
+if [ $BUILDROOT_IMAGE_PATH_EXISTS -eq 0 ]; then
+	VIDOS_ROOTFS=$(ls $BUILDROOT_IMAGE_PATH/ | grep -m 1 "vidos_rootfs_*")
+	if [ "$VIDOS_ROOTFS" != "vidos_rootfs_"$1 ]; then
+		yes | rm -r $BUILDROOT
+	else
+		echo "specified vidos distribution VidOS_"$1" has already been built. please run probe.sh"
+		exit 0
+	fi
+fi
+echo "building VidOS distribution with "$1" support"
+
+
+test -e $BUILDROOT; BUILDROOT_EXISTS=$?
 if [ $BUILDROOT_EXISTS -eq 1 ]; then
 	#download and unpack latest buildroot release
 	echo "Downloading buildroot version: "$BUILDROOT &&
@@ -52,7 +75,7 @@ if [ $TOOLCHAIN_EXISTS -eq 1 ]; then
 	$TOOLCHAIN/relocate-sdk.sh
 fi
 
-test -e $BUILDROOT/output/images/output.iso; IMAGE_EXISTS=$?
+test -e $BUILDROOT/output/images/vidos_$1.iso; IMAGE_EXISTS=$?
 if [ $IMAGE_EXISTS -eq 1 ]; then
 	echo "patching base configuration for "$1" support" &&
  	patch vidos_base_config vidos_$1.patch -o vidos_$1_config &&
