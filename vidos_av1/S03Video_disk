@@ -1,0 +1,40 @@
+#!/bin/ash
+case "$1" in
+  start)
+	while true
+	do
+		test -e /dev/sda; HD=$?
+		test -e /dev/sr0; CD=$?
+		echo $HD
+		echo $CD
+
+		if [ $HD -eq 0 ]; then
+			echo "disk exists";
+			MEDIA_SRC=/dev/sda
+			break;
+		elif [ $CD -eq 0 ]; then
+			echo "optical drive exists";
+			MEDIA_SRC=/dev/sr0
+			break;
+		else
+			echo "Waiting for device";
+		        sleep 1;
+		fi
+	done
+
+	mount $MEDIA_SRC /media
+        amixer sset Master unmute 0.0dB
+        mpv -vo=drm --playlist=/media/video/playlist.txt
+	poweroff
+
+    ;;
+  stop)
+    exit 1
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+
+exit 0
+

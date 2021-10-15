@@ -1,5 +1,5 @@
 #!/bin/bash
-BUILDROOT=buildroot-2021.05
+BUILDROOT=buildroot-2021.08
 BUILDROOT_IMAGE_PATH=$BUILDROOT/output/images
 TOOLCHAIN=x86_64-buildroot-linux-musl_sdk-buildroot
 SUPPORTED_SYSTEM_TYPES=("av1" "webm")

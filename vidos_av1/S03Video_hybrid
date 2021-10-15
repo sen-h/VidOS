@@ -1,0 +1,40 @@
+#!/bin/ash
+#	amixer sset Master unmute 0.0dB
+#	mpv -vo=drm --playlist=/opt/playlist.m3u8 && poweroff &
+case "$1" in
+  start)
+	amixer sset Master unmute 0.0dB
+	mpv -vo=drm --playlist=/opt/playlist.m3u8 && poweroff &
+	while true
+	do
+		test -e /dev/sda; HD=$?
+		test -e /dev/sr0; CD=$?
+		echo $HD
+		echo $CD
+
+		if [ $HD -eq 0 ]; then
+			echo "disk exists";
+			MEDIA_SRC=/dev/sda
+			mount $MEDIA_SRC /media
+			break;
+		elif [ $CD -eq 0 ]; then
+			echo "optical drive exists";
+			MEDIA_SRC=/dev/sr0
+			mount $MEDIA_SRC /media
+			break;
+		else
+			echo "Waiting for device";
+		        sleep 1;
+		fi
+	done
+    ;;
+  stop)
+    exit 1
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+
+exit 0
+
