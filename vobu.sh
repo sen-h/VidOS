@@ -1,52 +1,66 @@
 #!/bin/bash
-
-BUILDROOT_LATEST=buildroot-2021.08
-VIDOS_DIST=$BUILDROOT_LATEST/output
-VIDOS_ROOTFS=$(ls $VIDOS_DIST/images/ | grep -m 1 "vidos_rootfs_*")
 SUPPORTED_VID_CODECS=("av1" "vp8" "vp9")
 IS_SUPPORTED=0
+ARG_INVALID=0
+STYLE_INVALID=0
 
 function print_help(){
 echo "VidOS build ultilty
-usage: vobu -v [filename] -s [build style]
+usage: vobu -d directory -v [filename] -s [build style]
 options:
 -h help -- print this help text
+-d directory -- path to iso filesystem root directory
 -v filename -- path to video file
 -s build style -- style of output build, can be one of: disk ram hybrid"
 }
 
-while getopts ":v:s:h" opt; do
-case $opt in
-    v)
-	VIDEO="$OPTARG"
-    ;;
-    s)
-	STYLE="$OPTARG"
-    ;;
-    h)
-	print_help
-        exit 0
-    ;;
-    *)
-	echo "Invalid option -$OPTARG"
-	print_help
-	exit 2
-    ;;
-  esac
+while getopts ":h:d:v:s:" opt; do
+	case $opt in
+		h)
+			print_help
+	        	exit 0
+		;;
+		d)
+			DIR="$OPTARG"
+		;;
+		v)
+			VIDEO="$OPTARG"
+		;;
+		s)
+			STYLE="$OPTARG"
+		;;
+		*)
+			echo "Invalid option -$OPTARG"
+			print_help
+			exit 2
+		;;
+	esac
 done
+
+
+if [ -z $STYLE ] || [ "-" == $STYLE ] ; then
+        echo "error: no style specified, Please specify one of [disk] [ram] [hybrid]"
+        ARG_INVALID=1
+fi
+
+test -e $DIR; DIR_EXISTS=$?
+if [ -z $DIR ] || [ "-" == $DIR ] || [ $DIR_EXISTS -eq 1 ] ; then
+        echo "error: invalid directory, Please specify directory with -d, video with -v and style with -s"
+        ARG_INVALID=1
+
+fi
 
 test -e $VIDEO; VIDEO_EXISTS=$?
 if [ -z $VIDEO ] || [ "-" == $VIDEO ] || [ $VIDEO_EXISTS -eq 1 ] ; then
-        echo "error: invalid file, Please specify file with -v and style with -s"&&
-        print_help
-        exit 1
+        echo "error: invalid video, Please specify directory with -d, video with -v and style with -s"
+        ARG_INVALID=1
 fi
 
-if [ -z $STYLE ] || [ "-" == $STYLE ] ; then
-        echo "error: no style specified, Please specify one of [disk] [ram] [hybrid]"&&
-        print_help
-        exit 1
+if [ $ARG_INVALID -eq 1 ] ; then
+	exit 1
 fi
+
+VIDOS_ROOTFS=$(ls $DIR | grep -m 1 "vidos_rootfs_*")
 
 VIDEO_NAME=$(echo $VIDEO | cut -d'/' -f2 | cut -d'.' -f1)
 VID_CODEC=$(./ffprobe -v quiet -show_streams $VIDEO | grep -w codec_name | sed -n 1p | cut -d'=' -f2)
@@ -84,32 +98,34 @@ if [ $IS_SUPPORTED = 1 ]; then
 case $STYLE in
 
 	(disk)
-		cp $BUILDROOT_LATEST/board/vidos_av1/S03Video_disk $VIDOS_DIST/images/target/etc/init.d/S03Video
-		cp $VIDEO $VIDOS_DIST/images/$VIDOS_ROOTFS/video/
-		ls $VIDOS_DIST/images/$VIDOS_ROOTFS/video/ | sed 's/^/\/media\/video\//' > playlist.txt
-		mv playlist.txt $VIDOS_DIST/images/$VIDOS_ROOTFS/video/
+		cp $DIR/S03Video_disk $DIR/initramfs_overlay/etc/init.d/S03Video
+		cp $VIDEO $DIR/$VIDOS_ROOTFS/video/
+		ls $DIR/$VIDOS_ROOTFS/video/ | sed 's/^/\/media\/video\//' > playlist.txt
+		mv playlist.txt $DIR/$VIDOS_ROOTFS/video/
 	;;
 
 	(ram)
-		cp $BUILDROOT_LATEST/board/vidos_av1/S03Video_ram $VIDOS_DIST/images/target/etc/init.d/S03Video
-		cp $VIDEO $VIDOS_DIST/images/target/opt/
-		ls $VIDOS_DIST/images/target/opt/ | sed 's/^/\/opt\//' > playlist.txt
-		mv playlist.txt $VIDOS_DIST/images/target/opt/
+		cp $DIR/S03Video_ram $DIR/initramfs_overlay/etc/init.d/S03Video
+		cp $VIDEO $DIR/initramfs_overlay/opt/
+		ls $DIR/initramfs_overlay/opt/ | sed 's/^/\/opt\//' > playlist.txt
+		mv playlist.txt $DIR/initramfs_overlay/opt/
 	;;
 
 	(hybrid)
-		cp $BUILDROOT_LATEST/board/vidos_av1/S03Video_hybrid $VIDOS_DIST/images/target/etc/init.d/S03Video
+		cp $DIR/S03Video_hybrid $DIR/initramfs_overlay/etc/init.d/S03Video
+
+		echo "splitting video $VIDEO into chunks"
 
 	 	ffmpeg -v quiet -i $VIDEO -codec copy -map 0 -f segment -segment_list_type m3u8 \
-		-segment_list $VIDOS_DIST/images/target/opt/playlist.m3u8 -segment_list_entry_prefix /media/video/ \
+		-segment_list $DIR/initramfs_overlay/opt/playlist.m3u8 -segment_list_entry_prefix /media/video/ \
 		-segment_list_flags +cache -segment_time 10 \
-		$VIDOS_DIST/images/$VIDOS_ROOTFS/video/$VIDEO_NAME%03d.mkv
+		$DIR/$VIDOS_ROOTFS/video/$VIDEO_NAME%03d.mkv
 
 		echo "updating playlist"
-		sed -i '7d' $VIDOS_DIST/images/target/opt/playlist.m3u8
-		sed -i "6 a /opt/$VIDEO_NAME""000.mkv" $VIDOS_DIST/images/target/opt/playlist.m3u8
+		sed -i '7d' $DIR/initramfs_overlay/opt/playlist.m3u8
+		sed -i "6 a /opt/$VIDEO_NAME""000.mkv" $DIR/initramfs_overlay/opt/playlist.m3u8
 		echo "moving first segment into initramfs"
-		cp  $VIDOS_DIST/images/$VIDOS_ROOTFS/video/"$VIDEO_NAME"000.mkv $VIDOS_DIST/images/target/opt
+		cp  $DIR/$VIDOS_ROOTFS/video/"$VIDEO_NAME"000.mkv $DIR/initramfs_overlay/opt
 	;;
 
 	\?)
@@ -119,7 +135,7 @@ case $STYLE in
 	;;
 
 esac
-	cd $VIDOS_DIST/images/target
+	cd $DIR/initramfs_overlay
 	find . | LC_ALL=C sort | cpio --quiet -o -H  newc > ../$VIDOS_ROOTFS/kernel/rootfs.cpio
 	cd ../
 	lz4 -l -9 -c $VIDOS_ROOTFS/kernel/rootfs.cpio > $VIDOS_ROOTFS/kernel/rootfs.cpio.lz4
