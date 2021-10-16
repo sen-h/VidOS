@@ -13,7 +13,6 @@ BR2_ROOTFS_DEVICE_TABLE="board/vidos_av1/device_table_dev.txt"
 # BR2_TARGET_GENERIC_GETTY is not set
 # BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW is not set
 BR2_ROOTFS_OVERLAY="board/vidos_av1/rootfs-overlay"
-BR2_ROOTFS_POST_BUILD_SCRIPT="board/vidos_av1/move_firmware.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/vidos_av1/syslinux_post-image.sh"
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_VERSION=y

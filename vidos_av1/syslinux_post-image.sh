@@ -12,7 +12,6 @@ echo "found syslinux version: "$SYSLINUX_PATH
 mkdir -p $BINARIES_DIR/$VIDOS_ROOTFS/isolinux
 mkdir -p $BINARIES_DIR/$VIDOS_ROOTFS/kernel
 mkdir -p $BINARIES_DIR/$VIDOS_ROOTFS/video
-mkdir -p $BINARIES_DIR/$VIDOS_ROOTFS/firmware
 echo "created $VIDOS_ROOTFS directory"
 cp $BOARD_DIR/isolinux.cfg $BINARIES_DIR/$VIDOS_ROOTFS/isolinux
 cp $BOARD_DIR/video.mkv $BINARIES_DIR/$VIDOS_ROOTFS/video/video.mkv
@@ -21,9 +20,6 @@ cp $BINARIES_DIR/playlist.txt $BINARIES_DIR/$VIDOS_ROOTFS/video/
 cp $BINARIES_DIR/syslinux/isolinux.bin $BINARIES_DIR/$VIDOS_ROOTFS/isolinux
 cp $SYSLINUX_PATH/bios/mbr/isohdpfx.bin $BINARIES_DIR
 cp $SYSLINUX_PATH/bios/com32/elflink/ldlinux/ldlinux.c32 $BINARIES_DIR/$VIDOS_ROOTFS/isolinux
-cp -r $BINARIES_DIR/amdgpu $BINARIES_DIR/$VIDOS_ROOTFS/firmware
-cp -r $BINARIES_DIR/radeon $BINARIES_DIR/$VIDOS_ROOTFS/firmware
-cp -r $BINARIES_DIR/i915 $BINARIES_DIR/$VIDOS_ROOTFS/firmware
 cp $BINARIES_DIR/bzImage $BINARIES_DIR/$VIDOS_ROOTFS/kernel
 echo "copied files into $VIDOS_ROOTFS directory"
 cd $BINARIES_DIR
