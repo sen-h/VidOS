@@ -60,7 +60,7 @@ if [ $ARG_INVALID -eq 1 ] ; then
 	exit 1
 fi
 
-VIDOS_ROOTFS=$(ls $DIR | grep -m 1 "vidos_rootfs_*")
+VIDOS_ISO9660=$(ls $DIR | grep -m 1 "vidos_iso9660_*")
 
 VIDEO_NAME=$(echo $VIDEO | cut -d'/' -f2 | cut -d'.' -f1)
 VID_CODEC=$(./ffprobe -v quiet -show_streams $VIDEO | grep -w codec_name | sed -n 1p | cut -d'=' -f2)
@@ -83,10 +83,10 @@ else
 	echo "Warning: audio is not encoded in opus, and will not play back!"
 fi
 
-if [ -z $VIDOS_ROOTFS ]; then
-	echo "vidos root filesystem has not been built! Please run build.sh."
+if [ -z $VIDOS_ISO9660 ]; then
+	echo "vidos iso9660 root filesystem not found."
 	exit 1
-elif [ $VIDOS_ROOTFS != "vidos_rootfs_"$VID_CODEC ] && [ $IS_SUPPORTED = 1 ]; then
+elif [ $VIDOS_ISO9660 != "vidos_iso9660_"$VID_CODEC ] && [ $IS_SUPPORTED = 1 ]; then
 	echo "video is not of correct type for currently built VidOS"
 	echo "video requires vidos_"$VID_CODEC
 	exit 1
@@ -99,9 +99,9 @@ case $STYLE in
 
 	(disk)
 		cp $DIR/S03Video_disk $DIR/initramfs_overlay/etc/init.d/S03Video
-		cp $VIDEO $DIR/$VIDOS_ROOTFS/video/
-		ls $DIR/$VIDOS_ROOTFS/video/ | sed 's/^/\/media\/video\//' > playlist.txt
-		mv playlist.txt $DIR/$VIDOS_ROOTFS/video/
+		cp $VIDEO $DIR/$VIDOS_ISO9660/video/
+		ls $DIR/$VIDOS_ISO9660/video/ | sed 's/^/\/media\/video\//' > playlist.txt
+		mv playlist.txt $DIR/$VIDOS_ISO9660/video/
 	;;
 
 	(ram)
@@ -119,13 +119,13 @@ case $STYLE in
 	 	ffmpeg -v quiet -i $VIDEO -codec copy -map 0 -f segment -segment_list_type m3u8 \
 		-segment_list $DIR/initramfs_overlay/opt/playlist.m3u8 -segment_list_entry_prefix /media/video/ \
 		-segment_list_flags +cache -segment_time 10 \
-		$DIR/$VIDOS_ROOTFS/video/$VIDEO_NAME%03d.mkv
+		$DIR/$VIDOS_ISO9660/video/$VIDEO_NAME%03d.mkv
 
 		echo "updating playlist"
 		sed -i '7d' $DIR/initramfs_overlay/opt/playlist.m3u8
 		sed -i "6 a /opt/$VIDEO_NAME""000.mkv" $DIR/initramfs_overlay/opt/playlist.m3u8
 		echo "moving first segment into initramfs"
-		cp  $DIR/$VIDOS_ROOTFS/video/"$VIDEO_NAME"000.mkv $DIR/initramfs_overlay/opt
+		cp  $DIR/$VIDOS_ISO9660/video/"$VIDEO_NAME"000.mkv $DIR/initramfs_overlay/opt
 	;;
 
 	\?)
@@ -136,15 +136,15 @@ case $STYLE in
 
 esac
 	cd $DIR/initramfs_overlay
-	find . | LC_ALL=C sort | cpio --quiet -o -H  newc > ../$VIDOS_ROOTFS/kernel/rootfs.cpio
+	find . | LC_ALL=C sort | cpio --quiet -o -H  newc > ../$VIDOS_ISO9660/kernel/rootfs.cpio
 	cd ../
-	lz4 -l -9 -c $VIDOS_ROOTFS/kernel/rootfs.cpio > $VIDOS_ROOTFS/kernel/rootfs.cpio.lz4
-	rm $VIDOS_ROOTFS/kernel/rootfs.cpio
+	lz4 -l -9 -c $VIDOS_ISO9660/kernel/rootfs.cpio > $VIDOS_ISO9660/kernel/rootfs.cpio.lz4
+	rm $VIDOS_ISO9660/kernel/rootfs.cpio
 	echo "installed "$VIDEO" as a new video and rebuilt playlist"
 	echo "rebuilding iso"
-	xorriso -as mkisofs -quiet -o vidos_$VID_CODEC.iso -isohybrid-mbr isohdpfx.bin \
+	xorriso -as mkisofs -quiet -o ../vidos_$VID_CODEC.iso -isohybrid-mbr isohdpfx.bin \
 	-c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table \
-	$VIDOS_ROOTFS
+	$VIDOS_ISO9660
 
 else
 	echo "video is not of correct type for currently built VidOS"
