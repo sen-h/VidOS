@@ -88,7 +88,7 @@ if [ -z $VIDOS_ISO9660 ]; then
 	exit 1
 elif [ $VIDOS_ISO9660 != "vidos_iso9660_"$VID_CODEC ] && [ $IS_SUPPORTED = 1 ]; then
 	echo "video is not of correct type for currently built VidOS"
-	echo "video requires vidos_"$VID_CODEC
+	echo "video requires "$VID_CODEC"_build"
 	exit 1
 fi
 
@@ -146,8 +146,15 @@ esac
 	-c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table \
 	$VIDOS_ISO9660
 
+	if [ -n "$(ls $VIDOS_ISO9660/video/)" ]; then
+		rm $VIDOS_ISO9660/video/*
+	elif [ -n "$(ls initramfs_overlay/opt/)" ]; then
+		rm initramfs_overlay/opt/*
+	fi
 else
 	echo "video is not of correct type for currently built VidOS"
         echo $VID_CODEC" is not a supported video format, please specify one of the following video formats: "${SUPPORTED_VID_CODECS[@]}
 	exit 1
 fi
+
+
