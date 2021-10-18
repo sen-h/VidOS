@@ -62,9 +62,9 @@ fi
 
 VIDOS_ISO9660=$(ls $DIR | grep -m 1 "vidos_iso9660_*")
 
-VIDEO_NAME=$(echo $VIDEO | cut -d'/' -f2 | cut -d'.' -f1)
-VID_CODEC=$(./ffprobe -v quiet -show_streams $VIDEO | grep -w codec_name | sed -n 1p | cut -d'=' -f2)
-AUD_CODEC=$(./ffprobe -v quiet -show_streams $VIDEO | grep -w codec_name | sed -n 2p | cut -d'=' -f2)
+VIDEO_NAME=$(echo $VIDEO | rev | cut -d'/' -f1 | cut -d'.' -f2 | rev )
+VID_CODEC=$(ffprobe -v quiet -show_streams $VIDEO | grep -w codec_name | sed -n 1p | cut -d'=' -f2)
+AUD_CODEC=$(ffprobe -v quiet -show_streams $VIDEO | grep -w codec_name | sed -n 2p | cut -d'=' -f2)
 
 for CODEC in "${SUPPORTED_VID_CODECS[@]}"
 do
@@ -142,7 +142,7 @@ esac
 	rm $VIDOS_ISO9660/kernel/rootfs.cpio
 	echo "installed "$VIDEO" as a new video and rebuilt playlist"
 	echo "rebuilding iso"
-	xorriso -as mkisofs -quiet -o ../vidos_$VID_CODEC.iso -isohybrid-mbr isohdpfx.bin \
+	xorriso -as mkisofs -quiet -o ../vidos_$VID_CODEC"_"$VIDEO_NAME.iso -isohybrid-mbr isohdpfx.bin \
 	-c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table \
 	$VIDOS_ISO9660
 
