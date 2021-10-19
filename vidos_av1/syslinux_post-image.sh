@@ -37,6 +37,6 @@ echo "copied files into $VIDOS_ISO9660 directory"
 
 cd $BINARIES_DIR
 
-xorriso -as mkisofs -o vidos_$2.iso -isohybrid-mbr isohdpfx.bin \
+xorriso -as mkisofs -o vidos_$2.iso -isohybrid-mbr $SYSLINUX_PATH/bios/mbr/isohdpfx.bin \
   -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table \
   $VIDOS_ISO9660_PATH/
