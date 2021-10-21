@@ -22,6 +22,11 @@ mkdir -p $VIDOS_BUILD_PATH/firmware
 echo "created $VIDOS_ISO9660 directory"
 
 cp -r $BOARD_DIR/initramfs_overlay $VIDOS_BUILD_PATH
+
+rm $VIDOS_BUILD_PATH/initramfs_overlay/opt/.gitkeep
+rm $VIDOS_BUILD_PATH/initramfs_overlay/etc/init.d/.gitkeep
+rm $VIDOS_BUILD_PATH/initramfs_overlay/firmware/.gitkeep
+
 cp $BOARD_DIR/S03Video* $VIDOS_BUILD_PATH
 cp $BOARD_DIR/vobu.sh $VIDOS_RELEASE_PATH
 
@@ -36,7 +41,11 @@ cp $SYSLINUX_PATH/bios/com32/elflink/ldlinux/ldlinux.c32 $VIDOS_ISO9660_PATH/iso
 cp -r $BINARIES_DIR/amdgpu $VIDOS_BUILD_PATH/firmware/
 cp -r $BINARIES_DIR/radeon $VIDOS_BUILD_PATH/firmware/
 cp -r $BINARIES_DIR/i915 $VIDOS_BUILD_PATH/firmware/
-
+pushd $VIDOS_BUILD_PATH/firmware/
+ln -s . all
+touch none
+ls ./
+popd
 cp $BINARIES_DIR/rootfs.cpio.lz4 $VIDOS_ISO9660_PATH/kernel
 cp $BINARIES_DIR/bzImage $VIDOS_ISO9660_PATH/kernel
 echo "copied files into $VIDOS_ISO9660 directory"
