@@ -83,7 +83,7 @@ fi
 test -e $BUILDROOT/$SYSTEM_TYPE_ARG/images/vidos_release; IMAGE_EXISTS=$?
 if [ $IMAGE_EXISTS -eq 1 ]; then
 	echo "patching base configuration for "$SYSTEM_TYPE_ARG" support" &&
- 	patch vidos_base_config vidos_$SYSTEM_TYPE_ARG.patch -o vidos_$SYSTEM_TYPE_ARG_config &&
+ 	patch vidos_base_config vidos_$SYSTEM_TYPE_ARG.patch -o "vidos_"$SYSTEM_TYPE_ARG"_config" &&
 	mkdir $BUILDROOT/$SYSTEM_TYPE_ARG &&
 	cp "vidos_"$SYSTEM_TYPE_ARG"_config" $BUILDROOT/$SYSTEM_TYPE_ARG/.config &&
 	#set toolchain path automagically
