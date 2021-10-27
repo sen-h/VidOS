@@ -18,7 +18,7 @@ echo "found syslinux version: "$SYSLINUX_PATH
 mkdir -p $VIDOS_ISO9660_PATH/isolinux
 mkdir -p $VIDOS_ISO9660_PATH/kernel
 mkdir -p $VIDOS_ISO9660_PATH/video
-mkdir -p $VIDOS_BUILD_PATH/firmware
+mkdir -p $VIDOS_BUILD_PATH/lib/firmware
 echo "created $VIDOS_ISO9660 directory"
 
 cp -r $BOARD_DIR/initramfs_overlay $VIDOS_BUILD_PATH
@@ -42,9 +42,8 @@ cp -r $BINARIES_DIR/amdgpu $VIDOS_BUILD_PATH/firmware/
 cp -r $BINARIES_DIR/radeon $VIDOS_BUILD_PATH/firmware/
 cp -r $BINARIES_DIR/i915 $VIDOS_BUILD_PATH/firmware/
 pushd $VIDOS_BUILD_PATH/firmware/
-ln -s . all
+if [ ! -L all ]; then ln -s . all; fi
 touch none
-ls ./
 popd
 cp $BINARIES_DIR/rootfs.cpio.lz4 $VIDOS_ISO9660_PATH/kernel
 cp $BINARIES_DIR/bzImage $VIDOS_ISO9660_PATH/kernel

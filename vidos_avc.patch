@@ -1,0 +1,15 @@
+--- vidos_base_config	2021-10-26 10:53:25.170578397 -0500
++++ vidos_avc_config	2021-10-26 11:13:21.534000295 -0500
+@@ -7,0 +8,2 @@
++BR2_TOOLCHAIN_EXTERNAL_CUSTOM_GLIBC=y
++BR2_TOOLCHAIN_EXTERNAL_INET_RPC=n
+@@ -14,0 +17 @@
++BR2_ROOTFS_POST_BUILD_SCRIPT="board/vidos_av1/remove_firmware.sh"
+@@ -15,0 +19 @@
++BR2_ROOTFS_POST_SCRIPT_ARGS="avc"
+@@ -27,0 +32 @@
++BR2_PACKAGE_FFMPEG_EXTRACONF="--disable-everything --enable-libopenh264 --enable-libfdk_aac --enable-decoder='libopenh264,libfdk_aac' --enable-parser='h264,aac' --enable-demuxer='matroska,mov' --enable-protocol=file --enable-outdev='fbdev,alsa,oss' --enable-filter=aresample"
+@@ -37,0 +43 @@
++BR2_PACKAGE_FDK_AAC=y
+@@ -40,0 +47 @@
++BR2_PACKAGE_LIBOPENH264=y

@@ -1,8 +1,10 @@
 --- vidos_base_config
 +++ vidos_webm_config
-@@ -17,0 +18 @@
+@@ -7,0 +8 @@
++BR2_TOOLCHAIN_EXTERNAL_CUSTOM_MUSL=y
+@@ -16,0 +18 @@
 +BR2_ROOTFS_POST_SCRIPT_ARGS="webm"
-@@ -29,0 +30 @@
+@@ -28,0 +31 @@
 +BR2_PACKAGE_FFMPEG_EXTRACONF="--disable-everything --enable-libvpx --enable-decoder='vp8,vp9,opus' --enable-parser='vp8,vp9,opus' --enable-demuxer=matroska --enable-protocol=file --enable-outdev='fbdev,alsa,oss'"
-@@ -39,0 +41 @@
+@@ -38,0 +42 @@
 +BR2_PACKAGE_LIBVPX=y

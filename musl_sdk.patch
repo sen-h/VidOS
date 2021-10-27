@@ -1,0 +1,4 @@
+--- sdk_base_config
++++ sdk_config
+@@ -4,0 +5 @@
++BR2_TOOLCHAIN_BUILDROOT_MUSL=y
