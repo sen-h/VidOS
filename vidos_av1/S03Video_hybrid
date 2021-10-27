@@ -3,6 +3,7 @@
 #	mpv -vo=drm --playlist=/opt/playlist.m3u8 && poweroff &
 case "$1" in
   start)
+        export LD_LIBRARY_PATH=/usr/lib
 	amixer sset Master unmute 0.0dB
 	mpv -vo=drm --playlist=/opt/playlist.m3u8 && poweroff &
 	while true
