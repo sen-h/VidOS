@@ -3,7 +3,7 @@ set -e
 
 BOARD_DIR=$(dirname "$0")
 
-VIDOS_ISO9660=vidos_iso9660_$2
+VIDOS_ISO9660=vidos_iso9660
 
 VIDOS_BUILD=$2_build
 
@@ -18,14 +18,15 @@ echo "found syslinux version: "$SYSLINUX_PATH
 mkdir -p $VIDOS_ISO9660_PATH/isolinux
 mkdir -p $VIDOS_ISO9660_PATH/kernel
 mkdir -p $VIDOS_ISO9660_PATH/video
-mkdir -p $VIDOS_BUILD_PATH/lib/firmware
+mkdir -p $VIDOS_BUILD_PATH/firmware
+mkdir -p $VIDOS_BUILD_PATH/$2_kernel
 echo "created $VIDOS_ISO9660 directory"
 
 cp -r $BOARD_DIR/initramfs_overlay $VIDOS_BUILD_PATH
 
 rm $VIDOS_BUILD_PATH/initramfs_overlay/opt/.gitkeep
 rm $VIDOS_BUILD_PATH/initramfs_overlay/etc/init.d/.gitkeep
-rm $VIDOS_BUILD_PATH/initramfs_overlay/firmware/.gitkeep
+rm $VIDOS_BUILD_PATH/initramfs_overlay/lib/firmware/.gitkeep
 
 cp $BOARD_DIR/S03Video* $VIDOS_BUILD_PATH
 cp $BOARD_DIR/vobu.sh $VIDOS_RELEASE_PATH
@@ -45,8 +46,8 @@ pushd $VIDOS_BUILD_PATH/firmware/
 if [ ! -L all ]; then ln -s . all; fi
 touch none
 popd
-cp $BINARIES_DIR/rootfs.cpio.lz4 $VIDOS_ISO9660_PATH/kernel
-cp $BINARIES_DIR/bzImage $VIDOS_ISO9660_PATH/kernel
+cp $BINARIES_DIR/rootfs.cpio.lz4 $VIDOS_BUILD_PATH/$2_kernel
+cp $BINARIES_DIR/bzImage $VIDOS_BUILD_PATH/$2_kernel
 echo "copied files into $VIDOS_ISO9660 directory"
 
 cd $BINARIES_DIR
