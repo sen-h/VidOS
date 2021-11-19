@@ -100,12 +100,12 @@ vobu uses find to crawl through all of its sub directories using the same rules
 
 so if all_the_cool_vids/ looked like this:
 
-all_the_cool_vids/
-├── sweet_skateboarding
-│   └── cool_curbgrinds.mp4
-├── rad_rimshots.webm
-├── sick_kickflips.mkv
-├── dope_dirtbikes.mkv
+`all_the_cool_vids/`
+`├── sweet_skateboarding`
+`│   └── cool_curbgrinds.mp4`
+`├── rad_rimshots.webm`
+`├── sick_kickflips.mkv`
+`├── dope_dirtbikes.mkv`
 
 vobu will find dope_dirtbikes.mkv first 
 even though it comes after cool_curbgrinds.mp4 because it is in the root dir.
