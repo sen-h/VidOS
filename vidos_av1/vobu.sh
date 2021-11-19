@@ -43,7 +43,7 @@ pickCodec(){
 		\rsoftware decoders must be downloaded and installed at build time in order to avoid paying licencing fees
 		\rplease read and agree to the following terms of the licence agreement for the OpenH264 Video Codec:"
 		read -p "[ press enter to read, press q when finished ]"
-		curl http://www.openh264.org/BINARY_LICENSE.txt | less
+		curl https://www.openh264.org/BINARY_LICENSE.txt | less
 		read -p "Do you agree to the preceeding terms, Yes or no (y/n)? " -N 1 VAL
 		ifAVC
 	elif [ $VID_FORMAT = "avc" ] && [ -e $DIR/.licenceAgreed ]; then
@@ -63,6 +63,7 @@ ifAVC() {
 				ln -s libfdk-aac.so.2 libfdk-aac.so
 				echo -e "\ninstalling libopenh264"
 				wget -q -O - http://ciscobinary.openh264.org/libopenh264-2.1.1-linux64.6.so.bz2 | bunzip2 -c > libopenh264.so.2.1.1
+				chmod +x libopenh264.so.2.1.1
 				ln -s libopenh264.so.2.1.1 libopenh264.so.6 && ln -s libopenh264.so.6 libopenh264.so
 				echo "finished installing external libs"
 				popd
