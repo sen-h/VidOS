@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 set -e
 
@@ -39,9 +40,6 @@ cp $BINARIES_DIR/syslinux/isolinux.bin $VIDOS_ISO9660_PATH/isolinux
 cp $SYSLINUX_PATH/bios/mbr/isohdpfx.bin $VIDOS_BUILD_PATH
 cp $SYSLINUX_PATH/bios/com32/elflink/ldlinux/ldlinux.c32 $VIDOS_ISO9660_PATH/isolinux
 
-cp -r $BINARIES_DIR/amdgpu $VIDOS_BUILD_PATH/firmware/
-cp -r $BINARIES_DIR/radeon $VIDOS_BUILD_PATH/firmware/
-cp -r $BINARIES_DIR/i915 $VIDOS_BUILD_PATH/firmware/
 pushd $VIDOS_BUILD_PATH/firmware/
 if [ ! -L all ]; then ln -s . all; fi
 touch none
