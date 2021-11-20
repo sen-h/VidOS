@@ -36,11 +36,11 @@ Kernel Package	|Video Container(s)			    |Supported video codec(s)|Supported aud
 |vidos_webm	|webm (.webm) <br> matroska (.mkv) <br> MPEG-4 part 10 (.mp4)	| vp8/vp9	     | opus	|
 
 # Supported video containers, audio and video codecs per Kernel Package
-Kernel Package	|matroska (.mkv) | MPEG-4 part 10 (.mp4) | webm (.webm) | AVC/H.264 | AV1  | vp8  | vp9  |AAC-LC| opus |
-|---		|---		 |---		         |---	        |--         |--    |--    |--    |--    |--    | 
-|vidos_avc	|&check		 |&check		 |&check	|&check	    |&cross|&cross|&cross|&check|&cross|
-|vidos_av1	|&check		 |&check		 |&check	|&cross	    |&check|&cross|&cross|&cross|&check|
-|vidos_webm	|&check		 |&check		 |&check	|&cross	    |&cross|&check|&check|&cross|&check|
+Kernel Package	|matroska (.mkv) | MPEG-4 part 10 (.mp4) | webm (.webm) | AVC/H.264 | AV1   | vp8   | vp9   |AAC-LC | opus  |
+|---		|---		 |---		         |---	        |--         |--     |--     |--     |--     |--     | 
+|vidos_avc	|&check;	 |&check;		 |&check;	|&check;    |&cross;|&cross;|&cross;|&check;|&cross;|
+|vidos_av1	|&check;	 |&check;		 |&check;	|&cross;    |&check;|&cross;|&cross;|&cross;|&check;|
+|vidos_webm	|&check;	 |&check;		 |&check;	|&cross;    |&cross;|&check;|&check;|&cross;|&check;|
 
 # Getting Started
 
