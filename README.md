@@ -32,15 +32,8 @@ After the video(s) ends poweroff is called and the device shuts down.
 Kernel Package	|Video Container(s)			    |Supported video codec(s)|Supported audio codec	|
 |---		|---								|---		     |---	|
 |vidos_avc	|matroska (.mkv) <br> MPEG-4 part 10 (.mp4)			| AVC/H.264	     | AAC-LC	|
-|vidos_av1	|matroska (.mkv) <br> MPEG-4 part 10 (.mp4)			| AV1		     | opus	|
-|vidos_webm	|webm (.webm) <br> matroska (.mkv) <br> MPEG-4 part 10 (.mp4)	| vp8/vp9	     | opus	|
-
-# Supported video containers, audio and video codecs per Kernel Package
-Kernel Package	|matroska (.mkv) | MPEG-4 part 10 (.mp4) | webm (.webm) | AVC/H.264 | AV1   | vp8   | vp9   |AAC-LC | opus  |
-|---		|---		 |---		         |---	        |--         |--     |--     |--     |--     |--     | 
-|vidos_avc	|&check;	 |&check;		 |&check;	|&check;    |&cross;|&cross;|&cross;|&check;|&cross;|
-|vidos_av1	|&check;	 |&check;		 |&check;	|&cross;    |&check;|&cross;|&cross;|&cross;|&check;|
-|vidos_webm	|&check;	 |&check;		 |&check;	|&cross;    |&cross;|&check;|&check;|&cross;|&check;|
+|vidos_av1	|matroska (.mkv) <br> MPEG-4 part 10 (.mp4) <br> webm (.webm)   | AV1		     | opus	|
+|vidos_webm	|matroska (.mkv) <br> MPEG-4 part 10 (.mp4) <br> webm (.webm)	| vp8/vp9	     | opus	|
 
 # Getting Started
 
