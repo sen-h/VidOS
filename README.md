@@ -56,8 +56,8 @@ vobu.sh also supports a ton more options outlined below
 `-d directory -- path to vidos resource dir`<br>
 `-v filename or directory -- path to video file or directory of video files, supported video codecs: [ av1 vp8 vp9 h264 ]`<br>
 `-s build style -- style of output build, one of: [ disk ram hybrid ] Default: ram`<br>
-`-f firmware -- binary graphics drivers, one or multiple of:[ amdgpu radeon i915 none all ] Default: none`<br>
-`-c codec -- specific video codec to use, if omitted one will be autodetected. one of: [ av1 vp8 vp9 h264 ]`<br>
+`-g graphics drivers -- binary blob graphics drivers, one or multiple of: [ amdgpu radeon i915 none all ] Default: none`<br>
+`-f format  -- specific video format to use, if omitted one will be autodetected. one of: [ av1 webm avc ]`<br>
 
 ## -h help -- print this help text
 
@@ -81,8 +81,8 @@ or a directory (and its subdirectories) full of video files like this:
 
 `./vobu.sh -v all_the_cute_animals/`
 
-if -c is not specified, vobu finds the first video with a codec it supports,
-and then only finds videos with that same codec.
+if -f is not specified, vobu finds the first video with a format it supports,
+and then only finds videos with that same format.
 
 for example on multi filename arguments:
 
@@ -112,28 +112,17 @@ even though it comes after cool_curbgrinds.mp4 because it is in the root dir.
 and because dope_dirtbikes.mkv is encoded in av1, vobu next finds
 sick_kickflips.mkv which is also encoded in av1, but ignores rad_rimshots.webm.
 
-to get around this use -c to explicitly set the mandatory codec:
+to get around this use -f to explicitly set the mandatory format/codec:
 
-`./vobu.sh -v all_the_cool_vids/ -c h264`
+`./vobu.sh -v all_the_cool_vids/ -f avc`
 
 vobu will only find cool_curbgrinds.mp4
 
 or:
 
-`./vobu.sh -v all_the_cool_vids/ -c vp8`
+`./vobu.sh -v all_the_cool_vids/ -f webm`
 
 vobu will only find rad_rimshots.webm
-
-bear in mind that vobu interprets both vp8 and vp9 as webm,
-so if you specify either one, vobu will grab both.
-
-so: 
-
-`./vobu.sh -v vp9_encodedvideo.webm -c vp8`  
-
-will work and so will:
-
-`./vobu.sh -v vp8_encodedvideo.webm -c vp9`  
 
 ## -s *style* -- build style
 
@@ -186,7 +175,7 @@ the first chunk the disk has been mounted and the remaining chunks are
 available.
 YMMV.  
 
-## -f *firmware*
+## -g *firmware*
 
 this selects linux-firmware binary graphics driver directory to package in the initramfs.
 
@@ -196,8 +185,8 @@ your choice will affect the final size of the initramfs and as such the total bo
 for amd gpus
 
 ### `radeon` 
-
 for radeon or some older amd gpus
+
 ### `i915` 
 for some intel gpus
 
@@ -207,7 +196,7 @@ doesn't install any drivers
 ### `all`
 installs all of them (`amdgpu`, `radeon` and `i915`)
 
-## `-c` *codec*
+## `-f` *format*
 
 this selects the codec and corresponding format so that 
 vobu can select a kernel package to build your distro around.
@@ -216,6 +205,21 @@ this is autoselected by vobu by default but can be overridden by calling this op
 
 this could come in handy if you had a whole folder full of videos in different formats,
 and you wanted to make sure you grabbed a specific type  
+
+### `avc`
+
+selects videos in an AVC format ( H.264/AVC video and AAC audio in an mp4 or matroska container)
+
+### `av1`
+
+selects videos in AV1 format ( AV1 video and Opus audio in an mp4, webm or matroska container)
+
+### `webm`
+
+selects videos in WEBM format (vp8 or vp9 video and Opus audio in am mp4, webm or matroska container)
+
+
+
 
 # Bootloader
 
@@ -235,23 +239,19 @@ This also required recompilation of the kernel every time a new video is desired
 Now the kernel is a fixed size (~16MB) and it mounts the boot media automatically and plays directly off the disk.
 Changing out the video is as simple as putting a new one in the video folder and rebuilding the iso. See probe.sh for more details
 
-# building VidOS
+# building VidOS comonents from source
 
 Run 'build.sh' *video format*
 
-video formats:
-
-'av1' builds with support for av1 video + opus audio in an mkv container
-
-'webm' builds with support for vp8/vp9 video + opus audio in a webm or mkv container
-
-'avc' builds with support for H.264(AVC) video + AAC audio in a mkv or mp4 container
-
 This will download buildroot, build a relocateable toolchain (sdk) 
-and do some various setup functions as well as building an image.
+and do some various setup functions as well as building the 
+relevent kernal packages and a test image.
 
 you can then run 'build_release.sh' to bundle all of the releases into one directory
 
+afterwords cd into the release dir and run vobu as usual:
+
+`./vobu.sh -d vidos_release -v funnycatvideo.mkv`
 
 you can then dd that to a thumb drive or optical disk:
 
@@ -262,8 +262,6 @@ VidOS ships with a test video made with ffmpeg:
 `ffmpeg -f lavfi -i testsrc=d=10:s=1920x1080:r=30 -f lavfi -i sine=f=300:b=2:d=10 -ac 2 -c:a libopus -c:v libsvtav1 test_video.mkv`
 
 but that can be replaced by passing a new video to probe.sh 
-
-`./probe.sh mynewvideo.mkv`
 
 suitable videos can be made using ffmpeg and one of many suitable AV1 and 
 opus encoders. 

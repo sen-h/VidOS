@@ -1,5 +1,6 @@
 #!/bin/env bash
 SUPPORTED_VID_CODECS=( "av1" "vp8" "vp9" "h264")
+SUPPORTED_VID_FORMATS=( "av1" "webm" "avc")
 STYLE_ARRAY=( "disk" "ram" "hybrid" )
 FIRMWARE_ARRAY=( "amdgpu" "radeon" "i915" "none" "all")
 VID_SUPPORTED=1
@@ -8,33 +9,34 @@ STYLE_VALID=1
 
 print_help() {
 echo -e "\nVidOS build ultilty
-usage: vobu -d directory -v [filename/dirname] -s [build style] -f [firmware] -c [codec]
+usage: vobu -d directory -v [filename/dirname] -s [build style] -g [graphics drivers] -f [format]
 options:\n-h help -- print this help text
 -d directory -- path to vidos resource dir
 -v filename or directory -- path to video file or directory of video files, supported video codecs: [ "${SUPPORTED_VID_CODECS[@]}" ]
 -s build style -- style of output build, one of: [ "${STYLE_ARRAY[@]}" ] Default: ram
--f firmware -- binary graphics drivers, one or multiple of: [ "${FIRMWARE_ARRAY[@]}" ] Default: none
--c codec -- specific video codec to use, if omitted one will be autodetected. one of : [ "${SUPPORTED_VID_CODECS[@]}" ]"
+-g graphics drivers -- binary blob graphics drivers, one or multiple of: [ "${FIRMWARE_ARRAY[@]}" ] Default: none
+-f format  -- specific video format to use, if omitted one will be autodetected. one of: [ "${SUPPORTED_VID_FORMATS[@]}" ]"
 exit $1
 }
 
 pickCodec(){
-	VID_CODEC=$(ffprobe -v quiet -show_streams $1 | grep -w codec_name | sed -n 1p | cut -d'=' -f2)
-	if [ -z $VID_CODEC ];then
+	DETECTED_VID_CODEC=$(ffprobe -v quiet -show_streams $1 | grep -w codec_name | sed -n 1p | cut -d'=' -f2)
+	DETECTED_VID_FORMAT=$(ffprobe -v quiet -show_format $1 | grep -w format_name | sed -n 1p | cut -d'=' -f2)
+	if [ -z $DETECTED_VID_CODEC ];then
 		echo "video" $1 "is broken, please specify a different video or remove it from the specified dir";
 		exit 1
 	else
-		SELECTED_CODEC=${CODEC:-$VID_CODEC}
 		for CODEC in "${SUPPORTED_VID_CODECS[@]}"; do
-			if [ $SELECTED_CODEC = $CODEC ]; then VID_SUPPORTED=0 VID_FORMAT=$SELECTED_CODEC
-				if [[ $SELECTED_CODEC = vp[8-9] ]]; then VID_FORMAT="webm"
-				elif [ $SELECTED_CODEC = "h264" ] || [ $SELECTED_CODEC = "avc" ]; then VID_FORMAT="avc"
+			if [ $DETECTED_VID_CODEC = $CODEC ]; then VID_SUPPORTED=0 DETECTED_VID_FORMAT=$DETECTED_VID_CODEC
+				if [[ $DETECTED_VID_CODEC = vp[8-9] ]]; then DETECTED_VID_FORMAT="webm"
+				elif [ $DETECTED_VID_CODEC = "h264" ]; then DETECTED_VID_FORMAT="avc"
 				fi
 			fi
 		done
+		VID_FORMAT=${SELECTED_FORMAT:-$DETECTED_VID_FORMAT}
 
-		checkArg $VID_SUPPORTED "video" $SELECTED_CODEC "${SUPPORTED_VID_CODECS[*]}"
-		KERNEL_PATH=$(find vidos_full_release/ -type d -name "$VID_FORMAT""_kernel")
+		checkArg $VID_SUPPORTED "video" $DETECTED_VID_CODEC "codec" "${SUPPORTED_VID_CODECS[*]}"
+		KERNEL_PATH=$(find $DIR -type d -name "$VID_FORMAT""_kernel")
 		if [ ! $KERNEL_PATH ]; then echo "vidos" $VID_FORMAT"_kernel not found.";  exit 1; fi;
 	fi
 
@@ -84,15 +86,15 @@ ifAVC() {
 }
 
 checkArg() {
-	if [ $3 ]; then echo $2 "is" $3; fi
+	if [ $3 ]; then echo $2":" $3; fi
 	if [ $1 -ne 0 ]; then
-		echo -e $3 "is not supported as an option/argument for $2!\
-		\nsupported options/arguments for $2 are: [ $4 ]"
+		echo -e $3 "is not a supported $4 for $2!\
+		\nsupported $4"s" for $2 are: [ $5 ]"
 		print_help 2
 	fi
 }
 
-while getopts ":hd:v:s:f:c:" opt; do
+while getopts ":hd:v:s:g:f:" opt; do
 	case $opt in
 		h)
 			print_help 0
@@ -109,11 +111,11 @@ while getopts ":hd:v:s:f:c:" opt; do
 		s)
 			STYLE="$OPTARG"
 		;;
-		f)
+		g)
 			FIRMWARE="$OPTARG";
 		;;
-		c)
-			CODEC="$OPTARG"
+		f)
+			SELECTED_FORMAT="$OPTARG"
 		;;
 	esac
 done
@@ -172,20 +174,20 @@ for STYLE_OPTION in "${STYLE_ARRAY[@]}"; do
 	fi
 done
 
+checkArg $STYLE_VALID "style" $STYLE "option" "${STYLE_ARRAY[*]}"
+
 if [ $VIDEO_DIR ]; then
 	FIRST_VID=$(find $VIDEO_DIR -type f | grep -m1 ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$")
 	pickCodec $FIRST_VID
-	find $VIDEO_DIR -type f -iregex ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$" -exec bash -c 'checkVid "$0" "$1" "$2" "$3" "$4" "$5"' '{}' $SELECTED_CODEC ${!VID_PATH} ${!SED_ARG} $STYLE $ram_VID_PATH \;
+	find $VIDEO_DIR -type f -iregex ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$" -exec bash -c 'checkVid "$0" "$1" "$2" "$3" "$4" "$5"' '{}' $DETECTED_VID_CODEC ${!VID_PATH} ${!SED_ARG} $STYLE $ram_VID_PATH \;
 else
 	FIRST_VID="${VIDEO_SELECTION[0]}"
 	pickCodec $FIRST_VID
-	echo "using codec" $SELECTED_CODEC
+	echo "format:" $VID_FORMAT
 	for SELECTED_VID in "${VIDEO_SELECTION[@]}"; do
-		checkVid $SELECTED_VID $SELECTED_CODEC ${!VID_PATH} ${!SED_ARG} $STYLE $ram_VID_PATH
+		checkVid $SELECTED_VID $DETECTED_VID_CODEC ${!VID_PATH} ${!SED_ARG} $STYLE $ram_VID_PATH
 	done
 fi
-
-checkArg $STYLE_VALID "style" $STYLE "${STYLE_ARRAY[*]}"
 
 if [ $STYLE = "hybrid" ]; then
 	echo "dir" $DIR
@@ -213,7 +215,7 @@ for i in "${FIRMWARE_SELECTION[@]}"; do
 			FIRMWARE_VALID=0
 			FIRMWARES=$i
 			if [ -h $DIR/firmware/$i ]; then FIRMWARES=$i/*; fi
-			if [ $FIRMWARES != "none" ] && [ $(du -c $DIR/firmware/$FIRMWARES | grep "total" | cut -d "t" -f1) -eq 0 ]; then
+			if [ $FIRMWARES != "none" ] && [ ! -e $DIR/firmware/$FIRMWARES ]; then
 				echo "downloading linux-firmware package"
 				if [ -e linux-firmware-20211027.tar.gz ]; then rm linux-firmware-20211027.tar.gz; fi;
 				wget https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-20211027.tar.gz
@@ -224,21 +226,17 @@ for i in "${FIRMWARE_SELECTION[@]}"; do
 			cp -r $DIR/firmware/$FIRMWARES -t $DIR/initramfs_overlay/lib/firmware/
 	        fi
 	done
-	checkArg $FIRMWARE_VALID "firmware" $i "${FIRMWARE_ARRAY[*]}"
+	checkArg $FIRMWARE_VALID "firmware" $i "option" "${FIRMWARE_ARRAY[*]}"
 done
 
 delete_stuff(){
-	DELETE_ARRAY=( "initramfs_overlay/usr/*" "initramfs_overlay/lib/firmware/*" )
-	echo "removing files"
+	DELETE_ARRAY=( "initramfs_overlay/opt/*" "initramfs_overlay/etc/init.d/*"
+	"initramfs_overlay/usr/*" "initramfs_overlay/lib/firmware/*"
+	"vidos_iso9660/video/*" "vidos_iso9660/kernel/*")
+	echo "cleaning up"
 	for FILE in ${DELETE_ARRAY[@]}; do
-		if [ -e $FILE ]; then rm -r $FILE
-			echo "removed file:" $FILE
-		else
-			echo $FILE "was already removed"
-		fi
+		if [ -e $FILE ]; then rm -r $FILE; fi
 	done
-	find vidos_iso9660/video/  -type f -exec rm {} \;
-	find initramfs_overlay/opt/ -type f -exec rm {} \;
 }
 
 cp $KERNEL_PATH/bzImage $DIR/vidos_iso9660/kernel
@@ -249,8 +247,9 @@ lz4 -l -9 -c vidos_iso9660/kernel/rootfs.cpio > vidos_iso9660/kernel/rootfs.cpio
 rm vidos_iso9660/kernel/rootfs.cpio
 echo "installed "$VIDEO" as a new video and rebuilt playlist"
 echo "rebuilding iso"
-xorriso -as mkisofs -quiet -o ../vidos_$SELECTED_CODEC"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$VIDEO_NAME.iso -isohybrid-mbr isohdpfx.bin \
+xorriso -as mkisofs -quiet -o ../vidos_$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$(date +%F).iso -isohybrid-mbr isohdpfx.bin \
 -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table \
 vidos_iso9660
 
 delete_stuff
+echo "built" vidos_$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$(date +%F).iso
