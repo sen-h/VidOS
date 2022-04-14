@@ -79,7 +79,7 @@ if [ $TOOLCHAIN_EXISTS -eq 1 ]; then
 	if [ $TOOLCHAIN_EXISTS -eq 1 ]; then
 		echo "Building SDK"
 		#move configuration for custom built toolchain (sdk) to .config
-		patch configs/sdk_base_config $PREFIX"_sdk.patch" -o sdk_config &&
+		patch configs/sdk_base_config patches/$PREFIX"_sdk.patch" -o sdk_config &&
 		cp sdk_config  $BUILDROOT/$SYSTEM_TYPE_ARG/.config &&
 		echo "moved initial SDK configuration to "$BUILDROOT
 		cd $BUILDROOT/ &&
