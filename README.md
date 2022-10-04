@@ -280,7 +280,7 @@ This negates the need for HID and virtio drivers.
 In general, the approach is to keep things as simple and minimal as possible.
 This is to avoid an excessive kernel size and prevent it from being used for nefarious purposes.
 
-~~Eventually I will kick myself hard enough to get a proper PXE server running, instead of imaging thumb drives.~~ `got this working a while ago actually`
+~~Eventually I will kick myself hard enough to get a proper PXE server running, instead of imaging thumb drives.~~ *got this working a while ago actually*
 
 # Notes
 # To do
