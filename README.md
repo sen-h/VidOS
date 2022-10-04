@@ -2,15 +2,20 @@
 
 Complete single purpose linux system for x86-64 that just plays videos.
 More precisely it is a bunch of pre-built components and a utility to assemble those components
-into little linux distros that just boot and play your specified videos
+into little linux distros that just boot and play your specified videos.
 No compiling required!
 
 # Why?
 
-I mean, why not?
+Well, here are some possible use cases:
+
+* Digital Signage(think Video Ads in malls, Airport Terminal displays, menu boards in restaurants etc.)
+* Education (Museum exhibits, art galleries, expo booths)
+
+But honestly why not?
 Prior startup experience has left me with a bit of an obsession with minimal linux systems and video codecs.
-Also, it occurs to me that AV1 video is approximately the same bit rate as 1x CD speed (1.4 Mb/s).
-One could (and I have) play a 1080P video off of a CD. 
+Also, it occurs to me that  *perceptually good* FHD AV1 video is approximately the same bit rate as 1x CD speed (1.4 Mb/s).
+One could (and I have) "stream" a 1080P video off of a CD. 
 
 Also, I learned after working on this project for a over a year that this isn't an original idea (go figure): [Movix](http://movix.sourceforge.net/Docs/eMoviX/countries/en/main.html)
 
@@ -275,19 +280,20 @@ This negates the need for HID and virtio drivers.
 In general, the approach is to keep things as simple and minimal as possible.
 This is to avoid an excessive kernel size and prevent it from being used for nefarious purposes.
 
-Eventually I will kick myself hard enough to get a proper PXE server running, instead of imaging thumb drives.
+~~Eventually I will kick myself hard enough to get a proper PXE server running, instead of imaging thumb drives.~~ `got this working a while ago actually`
 
 # Notes
 # To do
 
-* make isolinux quieter (or silent)
+~~* make isolinux quieter (or silent)~~ *implemented with optional patch*
 
 * figure out efi bootstub stuff
 
-* more codec support
+~~* more codec support~~ *supports the 3 major web codecs*
 
-* support for a playlist of mulitple videos instead of just one
+~~* support for a playlist of mulitple videos instead of just one~~ *implemented*
 
+* support ARM64/rpi4 *in process*
 
 # Licence 
 
