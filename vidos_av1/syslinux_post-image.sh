@@ -33,9 +33,6 @@ cp $BOARD_DIR/S03Video* $VIDOS_BUILD_PATH
 cp $BOARD_DIR/vobu.sh $VIDOS_RELEASE_PATH
 
 cp $BOARD_DIR/isolinux.cfg $VIDOS_ISO9660_PATH/isolinux
-cp $BOARD_DIR/video.mkv $VIDOS_ISO9660_PATH/video/video.mkv
-ls $VIDOS_ISO9660_PATH/video/ > $BINARIES_DIR/playlist.txt
-cp $BINARIES_DIR/playlist.txt $VIDOS_ISO9660_PATH/video/
 cp $BINARIES_DIR/syslinux/isolinux.bin $VIDOS_ISO9660_PATH/isolinux
 cp $SYSLINUX_PATH/bios/mbr/isohdpfx.bin $VIDOS_BUILD_PATH
 cp $SYSLINUX_PATH/bios/com32/elflink/ldlinux/ldlinux.c32 $VIDOS_ISO9660_PATH/isolinux
@@ -48,8 +45,4 @@ cp $BINARIES_DIR/rootfs.cpio.lz4 $VIDOS_BUILD_PATH/$2_kernel
 cp $BINARIES_DIR/bzImage $VIDOS_BUILD_PATH/$2_kernel
 echo "copied files into $VIDOS_ISO9660 directory"
 
-cd $BINARIES_DIR
-
-xorriso -as mkisofs -o vidos_$2.iso -isohybrid-mbr $SYSLINUX_PATH/bios/mbr/isohdpfx.bin \
-  -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table \
-  $VIDOS_ISO9660_PATH/
+$VIDOS_RELEASE_PATH/vobu.sh -d $VIDOS_RELEASE_PATH/$2_build/ -v $BOARD_DIR/$2_video.*
