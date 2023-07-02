@@ -1,8 +1,6 @@
 #!/bin/bash
-BUILDROOT=buildroot-2022.02
+BUILDROOT=buildroot-2023.02.2
 BUILDROOT_IMAGE_PATH=$BUILDROOT/$SYSTEM_TYPE_ARG/images/vidos_release
-MUSL_TOOLCHAIN=x86_64-buildroot-linux-musl_sdk-buildroot
-GNU_TOOLCHAIN=x86_64-buildroot-linux-gnu_sdk-buildroot
 SUPPORTED_SYSTEM_TYPES=("av1" "webm" "avc")
 IS_SUPPORTED=0
 TOOLCHAIN=0
@@ -26,14 +24,6 @@ do
 		IS_SUPPORTED=1
 	fi
 done
-
-if [ $SYSTEM_TYPE_ARG = "avc" ]; then
-	TOOLCHAIN=$GNU_TOOLCHAIN
-	PREFIX="glibc"
-else
-	TOOLCHAIN=$MUSL_TOOLCHAIN
-	PREFIX="musl"
-fi
 
 if [ $IS_SUPPORTED = 0 ];then
 	echo $SYSTEM_TYPE_ARG" is not a supported configuration, please specify one of the follwing system types: "${SUPPORTED_SYSTEM_TYPES[@]}&&
@@ -71,34 +61,6 @@ test -e $BUILDROOT_SYSTEM_PATH; SYSTEM_EXISTS=$?
 if [ $SYSTEM_EXISTS -eq 1 ]; then
 	echo "making system path" $BUILDROOT_SYSTEM_PATH
 	mkdir -p $BUILDROOT_SYSTEM_PATH
-fi
-
-test -e $TOOLCHAIN; TOOLCHAIN_EXISTS=$?
-if [ $TOOLCHAIN_EXISTS -eq 1 ]; then
-	test -e $BUILDROOT/$SYSTEM_TYPE_ARG/images/$TOOLCHAIN.tar.gz; TOOLCHAIN_EXISTS=$?
-	if [ $TOOLCHAIN_EXISTS -eq 1 ]; then
-		echo "Building SDK"
-		#move configuration for custom built toolchain (sdk) to .config
-		patch configs/sdk_base_config patches/$PREFIX"_sdk.patch" -o sdk_config &&
-		cp sdk_config  $BUILDROOT/$SYSTEM_TYPE_ARG/.config &&
-		echo "moved initial SDK configuration to "$BUILDROOT
-		cd $BUILDROOT/ &&
-		#build a reloacatable toolchain (sdk)
-		echo "attempting to build SDK" &&
-		make O=$SYSTEM_TYPE_ARG olddefconfig &&
-		make O=$SYSTEM_TYPE_ARG sdk -j$(nproc) &&
-		echo "Built SDK sucessfully"
-		cd ../
-	fi
-	#copy and unpack sdk to project root directory
-	cp $BUILDROOT/$SYSTEM_TYPE_ARG/images/$TOOLCHAIN.tar.gz ./ &&
-	pushd $BUILDROOT
-	make O=$SYSTEM_TYPE_ARG clean
-	popd
-	tar -xf $TOOLCHAIN.tar.gz &&
-	rm $TOOLCHAIN.tar.gz &&
-	#run relocate-sdk.sh which does funky path nonsense (I think?)
-	$TOOLCHAIN/relocate-sdk.sh
 fi
 
 test -e $BUILDROOT/$SYSTEM_TYPE_ARG/images/vidos_release; IMAGE_EXISTS=$?

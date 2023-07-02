@@ -1,6 +1,7 @@
 #!/bin/env bash
 declare -A FORMAT_ARRAY=()
-FIRMWARE_VERSION="20220411"
+FIRMWARE_VERSION="20230625"
+OPENH264_VERSION="2.3.1"
 FORMAT_ARRAY=([av1]="av1" [vp8]="webm" [vp9]="webm" [h264]="avc")
 SUPPORTED_VID_CODECS=( "av1" "vp8" "vp9" "h264")
 SUPPORTED_VID_FORMATS=( "av1" "webm" "avc")
@@ -69,13 +70,13 @@ ifAVC() {
 			if [ ! -e $DIR/avc_external_lib ]; then
 				mkdir $DIR/avc_external_lib && pushd $DIR/avc_external_lib
 				echo -e "\ninstalling libfdk_aac"
-				wget -q -O - https://kojipkgs.fedoraproject.org//packages/fdk-aac-free/2.0.0/7.fc35/x86_64/fdk-aac-free-2.0.0-7.fc35.x86_64.rpm | rpm2cpio | cpio --quiet -idmv
+				wget -q -O - https://kojipkgs.fedoraproject.org//packages/fdk-aac-free/2.0.0/10.fc38/x86_64/fdk-aac-free-2.0.0-10.fc38.x86_64.rpm | rpm2cpio | cpio --quiet -idmv
 				mv usr/lib64/* usr/lib/ && pushd usr/lib/
 				ln -s libfdk-aac.so.2 libfdk-aac.so
 				echo -e "\ninstalling libopenh264"
-				wget -q -O - http://ciscobinary.openh264.org/libopenh264-2.1.1-linux64.6.so.bz2 | bunzip2 -c > libopenh264.so.2.1.1
-				chmod +x libopenh264.so.2.1.1
-				ln -s libopenh264.so.2.1.1 libopenh264.so.6 && ln -s libopenh264.so.6 libopenh264.so
+				wget -q -O - http://ciscobinary.openh264.org/libopenh264-$OPENH264_VERSION-linux64.6.so.bz2 | bunzip2 -c > libopenh264.so.$OPENH264_VERSION
+				chmod +x libopenh264.so.$OPENH264_VERSION
+				ln -s libopenh264.so.$OPENH264_VERSION libopenh264.so.6 && ln -s libopenh264.so.6 libopenh264.so
 				echo "finished installing external libs"
 				popd
 				popd
