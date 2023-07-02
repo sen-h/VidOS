@@ -274,8 +274,14 @@ Cheers!
 
 # Testing/development
 
-Develpment is done on a Wyse Rx0L thin client over its serial port.
-This negates the need for HID and virtio drivers.
+~~Develpment is done on a Wyse Rx0L thin client over its serial port.~~
+~~This negates the need for HID and virtio drivers.~~
+New _virt kernel config has Cirrus vga support, and works pretty well thru qemu.
+something like:
+
+`qemu-system-x86_64 -cpu host --enable-kvm -m 500 -soundhw ac97 -vga cirrus -cdrom path/to/iso.iso`
+
+works pretty well.
 
 In general, the approach is to keep things as simple and minimal as possible.
 This is to avoid an excessive kernel size and prevent it from being used for nefarious purposes.
