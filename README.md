@@ -262,13 +262,13 @@ you can then dd that to a thumb drive or optical disk:
 
 VidOS ships with test videos made with ffmpeg:
 ### AV1
-`ffmpeg -f lavfi -i testsrc=d=10:s=1920x1080:r=30 -f lavfi -i sine=f=300:b=2:d=10 -ac 2 -c:a libopus -c:v libsvtav1 -pix_fmt yuv420p av1_video.mkv`
+`ffmpeg -f lavfi -i "testsrc=d=10:s=1920x1080:r=30" -filter_complex drawtext='fontfile=/usr/share/fonts/truetype/freefont/FreeSans.ttf:fontcolor=white:fontsize=140:text='AV1'' -f lavfi -i sine=f=300:b=2:d=10 -ac 2 -c:a libopus -c:v libsvtav1 -pix_fmt yuv420p av1_video.mkv`
 
 ### WEBM
-`ffmpeg -f lavfi -i testsrc=d=10:s=1920x1080:r=30 -f lavfi -i sine=f=300:b=2:d=10 -ac 2 -c:a libopus -c:v libvpx-vp9 -pix_fmt yuv420p webm_video.webm`
+`ffmpeg -f lavfi -i "testsrc=d=10:s=1920x1080:r=30" -filter_complex drawtext='fontfile=/usr/share/fonts/truetype/freefont/FreeSans.ttf:fontcolor=white:fontsize=140:text='WEBM'' -f lavfi -i sine=f=300:b=2:d=10 -ac 2 -c:a libopus -c:v libvpx-vp9 -pix_fmt yuv420p webm_video.webm`
 
 ### AVC
-`ffmpeg -f lavfi -i testsrc=d=10:s=1920x1080:r=30 -f lavfi -i sine=f=300:b=2:d=10 -ac 2 -c:a libfdk_aac -c:v libopenh264 -pix_fmt yuv420p avc_video.mp4`
+`ffmpeg -f lavfi -i "testsrc=d=10:s=1920x1080:r=30" -filter_complex drawtext='fontfile=/usr/share/fonts/truetype/freefont/FreeSans.ttf:fontcolor=white:fontsize=140:text='AVC'' -f lavfi -i sine=f=300:b=2:d=10 -ac 2 -c:a libfdk_aac -c:v libopenh264 -pix_fmt yuv420p avc_video.mp4`
 
 Cheers!
 
