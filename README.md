@@ -246,8 +246,7 @@ Along with containing the kernel package and second initramfs, it may also conta
 
  `./build.sh` *video format*
 
-This will download buildroot, build a relocateable toolchain (sdk) 
-and do some various setup functions as well as building the 
+This will download buildroot and do some various setup functions as well as building the 
 relevent kernal packages and a test image.
 
 you can then run 'build_release.sh' to bundle all of the releases into one directory
