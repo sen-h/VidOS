@@ -1,18 +1,29 @@
 #!/bin/bash
-BUILDROOT_LATEST="buildroot-2023.02.2"
+BUILDROOT_LATEST="buildroot-2023.05"
 SUPPORTED_FORMATS=("av1" "avc" "webm")
 SUPPORTED_STYLES=("disk" "ram" "hybrid")
-mkdir -p vidos_release_$1/vidos_components
 
-cp -r $BUILDROOT_LATEST/${SUPPORTED_FORMATS[0]}/images/vidos_release/${SUPPORTED_FORMATS[0]}"_build"/. vidos_release_$1/vidos_components
+NAME=$1
+
+if [ -z $NAME ]; then NAME=$(date +%F); fi
+
+mkdir -p vidos_release_$NAME/vidos_components
+mkdir -p vidos_release_$NAME/SOURCE_AND_LICENSE_INFO
+
+pushd $BUILDROOT_LATEST
 
 for FORMAT in "${SUPPORTED_FORMATS[@]}"; do
-	echo $BUILDROOT_LATEST/$FORMAT/images/vidos_release/$FORMAT"_build"/$FORMAT"_kernel"
-	cp -r $BUILDROOT_LATEST/$FORMAT/images/vidos_release/$FORMAT"_build"/$FORMAT"_kernel" vidos_release_$1/vidos_components
+        make O=$FORMAT legal-info
+	cp -r $FORMAT/legal-info ../vidos_release_$NAME/SOURCE_AND_LICENSE_INFO/legal-info-$FORMAT
 
+	echo $FORMAT/images/vidos_release/$FORMAT"_build"/$FORMAT"_kernel"
+	cp -r $FORMAT/images/vidos_release/$FORMAT"_build"/* ../vidos_release_$NAME/vidos_components
 done
 
-cp vidos_av1/vobu.sh vidos_release_$1/
-cp README.md vidos_release_$1/
-find vidos_release_$1 -type f -name "rootfs.cpio.lz4" -delete
-rm vidos_release_$1/vidos_components/vidos_iso9660/video/*
+popd
+
+cp vidos_av1/vobu.sh README.md DEPS vidos_release_$NAME/
+
+find vidos_release_$NAME -type f -name "rootfs.cpio.lz4" -delete
+rm vidos_release_$NAME/vidos_components/vidos_iso9660/video/*
+rm -r vidos_release_$NAME/vidos_components/avc_external_lib

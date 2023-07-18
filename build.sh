@@ -1,5 +1,5 @@
 #!/bin/bash
-BUILDROOT=buildroot-2023.02.2
+BUILDROOT=buildroot-2023.05
 BUILDROOT_IMAGE_PATH=$BUILDROOT/$SYSTEM_TYPE_ARG/images/vidos_release
 SUPPORTED_SYSTEM_TYPES=("av1" "webm" "avc")
 IS_SUPPORTED=0
@@ -17,7 +17,6 @@ fi
 
 BUILDROOT_SYSTEM_PATH=$BUILDROOT/$SYSTEM_TYPE_ARG/
 
-
 for SYSTEM_TYPE in "${SUPPORTED_SYSTEM_TYPES[@]}"
 do
 	if [ $SYSTEM_TYPE_ARG = $SYSTEM_TYPE ]; then
@@ -29,8 +28,6 @@ if [ $IS_SUPPORTED = 0 ];then
 	echo $SYSTEM_TYPE_ARG" is not a supported configuration, please specify one of the follwing system types: "${SUPPORTED_SYSTEM_TYPES[@]}&&
 	exit 1
 fi
-
-
 
 test -e $BUILDROOT_IMAGE_PATH; BUILDROOT_IMAGE_PATH_EXISTS=$?
 if [ $BUILDROOT_IMAGE_PATH_EXISTS -eq 0 ]; then
@@ -68,11 +65,10 @@ if [ $IMAGE_EXISTS -eq 1 ]; then
 	echo "patching base configuration for "$SYSTEM_TYPE_ARG" support" &&
  	patch configs/vidos_base_config patches/vidos_$SYSTEM_TYPE_ARG.patch -o "vidos_"$SYSTEM_TYPE_ARG"_config" &&
 	cp "vidos_"$SYSTEM_TYPE_ARG"_config" $BUILDROOT/$SYSTEM_TYPE_ARG/.config &&
-	#set toolchain path automagically
-	sed -i '6 a BR2_TOOLCHAIN_EXTERNAL_PATH="'$PWD'/'$TOOLCHAIN'"' $BUILDROOT/$SYSTEM_TYPE_ARG/.config &&
-	cd $BUILDROOT/ &&
+	pushd $BUILDROOT/ &&
 	make O=$SYSTEM_TYPE_ARG olddefconfig &&
 	make O=$SYSTEM_TYPE_ARG -j$(nproc)
+	popd
 fi
 
 echo "Build for VidOS_"$SYSTEM_TYPE_ARG" successful!"

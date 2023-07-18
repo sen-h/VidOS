@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/bin/bash
 declare -A FORMAT_ARRAY=()
 FIRMWARE_VERSION="20230625"
 OPENH264_VERSION="2.3.1"
@@ -14,7 +14,7 @@ FIRMWARE_VALID=1
 FORMAT_SPECIFIED=1
 
 print_help() {
-echo -e "\nVidOS build ultilty
+echo -e "\nVidOS build utility v1.00
 usage: vobu -d [directory] -v [filename/dirname] -s [build style] -g [graphics drivers] -f [format]
 options:\n-h help -- print this help text
 -d directory -- path to vidos components dir
@@ -74,9 +74,9 @@ ifAVC() {
 				mv usr/lib64/* usr/lib/ && pushd usr/lib/
 				ln -s libfdk-aac.so.2 libfdk-aac.so
 				echo -e "\ninstalling libopenh264"
-				wget -q -O - http://ciscobinary.openh264.org/libopenh264-$OPENH264_VERSION-linux64.6.so.bz2 | bunzip2 -c > libopenh264.so.$OPENH264_VERSION
+				wget -q -O - http://ciscobinary.openh264.org/libopenh264-$OPENH264_VERSION-linux64.7.so.bz2 | bunzip2 -c > libopenh264.so.$OPENH264_VERSION
 				chmod +x libopenh264.so.$OPENH264_VERSION
-				ln -s libopenh264.so.$OPENH264_VERSION libopenh264.so.6 && ln -s libopenh264.so.6 libopenh264.so
+				ln -s libopenh264.so.$OPENH264_VERSION libopenh264.so.7 && ln -s libopenh264.so.7 libopenh264.so
 				echo "finished installing external libs"
 				popd
 				popd
@@ -274,4 +274,4 @@ rm -rf $PWD/initramfs_overlay/usr
 rm -rf $PWD/initramfs_overlay/lib/firmware/*
 rm -rf $PWD/vidos_iso9660/kernel/*
 
-echo "built" vidos_$FIRSTVID_NAME"_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$(date +%F).iso
+echo "built" vidos_$FIRSTVID_NAME"_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$(date +%F).iso
