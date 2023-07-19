@@ -1,5 +1,5 @@
 #!/bin/bash
-BUILDROOT=buildroot-2023.05
+BUILDROOT=buildroot-2023.05.1
 BUILDROOT_IMAGE_PATH=$BUILDROOT/$SYSTEM_TYPE_ARG/images/vidos_release
 SUPPORTED_SYSTEM_TYPES=("av1" "webm" "avc")
 IS_SUPPORTED=0
