@@ -54,8 +54,8 @@ this will build an iso you can burn to an optical disk or block device(thumb dri
 
 vobu.sh also supports a ton more options outlined below
  
-`VidOS build ultilty`<br>
-`usage: vobu -d [directory] -v [filename/dirname] -s [build style] -f [firmware] -c [codec]`<br>
+`VidOS build utility v1.xx`<br>
+`usage: vobu -d [directory] -v [filename/dirname] -s [build style] -g [graphics drivers] -f [format]`<br>
 `options:`<br>
 `-h help -- print this help text`<br>
 `-d directory -- path to vidos components dir`<br>
