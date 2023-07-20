@@ -63,6 +63,7 @@ vobu.sh also supports a ton more options outlined below
 `-s build style -- style of output build, one of: [ disk ram hybrid ] Default: ram`<br>
 `-g graphics drivers -- binary blob graphics drivers, one or multiple of: [ amdgpu radeon i915 none all ] Default: none`<br>
 `-f format  -- specific video format to use, if omitted one will be autodetected. one of: [ av1 webm avc ]`<br>
+`-x remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc.`
 
 ## `-h` *help* -- print this help text
 
@@ -178,7 +179,7 @@ button to image on glass time.
 The idea being you start playing the video asap and by the time you have finshed
 the first chunk the disk has been mounted and the remaining chunks are
 available.
-YMMV.  
+YMMV.
 
 ## -g *firmware* -- graphics drivers
 
@@ -222,6 +223,9 @@ selects videos in AV1 format ( AV1 video and Opus audio in an mp4, webm or matro
 ### `webm`
 
 selects videos in WEBM format (VP8 or VP9 video and Opus audio in an mp4, webm or matroska container)
+
+## `-x` *remove eXternal codecs*
+removes/disables OpenH264 and fdk-aac codecs, this is required for licencing reasons.
 
 
 # Bootloader

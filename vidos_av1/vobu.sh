@@ -13,6 +13,16 @@ STYLE_VALID=1
 FIRMWARE_VALID=1
 FORMAT_SPECIFIED=1
 
+remove_ex_libs() {
+	if [ -a $DIR/.licenceAgreed ]; then
+		rm -r $DIR/avc_external_lib/ $DIR/.licenceAgreed
+		echo "Removed OpenH264 (OpenH264 Video Codec provided by Cisco Systems, Inc.) and fdk-aac-free"
+	else
+		echo "OpenH264 (OpenH264 Video Codec provided by Cisco Systems, Inc.) and fdk-aac-free are already not installed"
+	fi
+exit 0
+}
+
 print_help() {
 echo -e "\nVidOS build utility v1.00
 usage: vobu -d [directory] -v [filename/dirname] -s [build style] -g [graphics drivers] -f [format]
@@ -21,7 +31,8 @@ options:\n-h help -- print this help text
 -v filename or directory -- path to video file or directory of video files, supported video codecs: [ "${SUPPORTED_VID_CODECS[@]}" ]
 -s build style -- style of output build, one of: [ "${STYLE_ARRAY[@]}" ] Default: ram
 -g graphics drivers -- binary blob graphics drivers, one or multiple of: [ "${FIRMWARE_ARRAY[@]}" ] Default: none
--f format  -- specific video format to use, if omitted one will be autodetected. one of: [ "${SUPPORTED_VID_FORMATS[@]}" ]"
+-f format  -- specific video format to use, if omitted one will be autodetected. one of: [ "${SUPPORTED_VID_FORMATS[@]}" ]
+-x remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc."
 exit $1
 }
 
@@ -49,13 +60,18 @@ pickCodec(){
 	if [ ! $KERNEL_PATH ]; then echo -e  "vidos" $VID_FORMAT"_kernel not found."; exit 1; fi;
 
 	if [ $VID_FORMAT == "avc" ] && [ ! -e $DIR/.licenceAgreed ]; then
-		echo -e "\ndue to various software patents, and an abundance of caution,
-		\rpre-built binary libraries for the AAC-LC and AVC(H.264/MPEG-4 Part 10)
-		\rsoftware decoders must be downloaded and installed at build time in order to avoid paying licencing fees
-		\rplease understand that these binary codecs are covered by the following licence agreements"
-		echo "OpenH264: https://www.openh264.org/BINARY_LICENSE.txt"
-		echo -e "fdk-aac-free based on fdk-aac based on Fraunhofer FDK AAC Codec Library for Android ("FDK AAC Codec"):\n https://android.googlesource.com/platform/external/aac/+/master/NOTICE"
+		echo -e "\nDue to various software patents, and an abundance of caution,
+		\rthe pre-built binary libraries
+		\rfdk-aac-free (a Third-Party Modified Version of the Fraunhofer FDK AAC Codec Library for Android)
+		\rand OpenH264 (OpenH264 Video Codec provided by Cisco Systems, Inc.)
+		\rmust be downloaded and installed for the decoding of AAC-LC and AVC(H.264/MPEG-4 Part 10)
+		\rat build time in order to avoid paying licencing fees.
+		\rPlease understand that these binary codecs are covered by the following licence agreements:
+		\rOpenH264: https://www.openh264.org/BINARY_LICENSE.txt
+		\rfdk-aac-free based on fdk-aac based on Fraunhofer FDK AAC Codec Library for Android ("FDK AAC Codec"):
+		\rhttps://android.googlesource.com/platform/external/aac/+/master/NOTICE"
 		read -p "Do you agree to the preceeding terms, Yes or no (y/n)? " -N 1 VAL
+		sleep 1
 		ifAVC
 	elif [ $VID_FORMAT == "avc" ] && [ -e $DIR/.licenceAgreed ]; then
 		VAL=y && ifAVC
@@ -66,10 +82,11 @@ pickCodec(){
 ifAVC() {
 	case $VAL in
 		y)
+			echo -e "\nOpenH264 and fdk-aac-free can be disabled/uninstalled at any time with the '-x' command line flag\n"
 			touch $DIR/.licenceAgreed
 			if [ ! -e $DIR/avc_external_lib ]; then
 				mkdir $DIR/avc_external_lib && pushd $DIR/avc_external_lib
-				echo -e "\ninstalling libfdk_aac"
+				echo -e "\ninstalling fdk-aac-free as libfdk_aac"
 				wget -q -O - https://kojipkgs.fedoraproject.org//packages/fdk-aac-free/2.0.0/10.fc38/x86_64/fdk-aac-free-2.0.0-10.fc38.x86_64.rpm | rpm2cpio | cpio --quiet -idmv
 				mv usr/lib64/* usr/lib/ && pushd usr/lib/
 				ln -s libfdk-aac.so.2 libfdk-aac.so
@@ -104,8 +121,11 @@ checkArg() {
 	fi
 }
 
-while getopts ":hd:v:s:g:f:" opt; do
+while getopts ":xhd:v:s:g:f:" opt; do
 	case $opt in
+		x)
+			remove_ex_libs
+		;;
 		h)
 			print_help 0
 		;;
