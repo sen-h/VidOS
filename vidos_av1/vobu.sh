@@ -2,6 +2,10 @@
 declare -A FORMAT_ARRAY=()
 FIRMWARE_VERSION="20230625"
 OPENH264_VERSION="2.3.1"
+OPENH264_MD5="49e10a523a32e9a070c63366fc50b6af"
+FDKAACFREE_VER="2.0.0"
+FDKAACFREE_REL="10.fc38"
+FDKAACFREE_MD5="ca20f1d6e77b8045a857b2531eca541c"
 FORMAT_ARRAY=([av1]="av1" [vp8]="webm" [vp9]="webm" [h264]="avc")
 SUPPORTED_VID_CODECS=( "av1" "vp8" "vp9" "h264")
 SUPPORTED_VID_FORMATS=( "av1" "webm" "avc")
@@ -14,7 +18,7 @@ FIRMWARE_VALID=1
 FORMAT_SPECIFIED=1
 
 remove_ex_libs() {
-	if [ -a $DIR/.licenceAgreed ]; then
+	if [ -e $DIR/.licenceAgreed ]; then
 		rm -r $DIR/avc_external_lib/ $DIR/.licenceAgreed
 		echo "Removed OpenH264 (OpenH264 Video Codec provided by Cisco Systems, Inc.) and fdk-aac-free"
 	else
@@ -25,14 +29,14 @@ exit 0
 
 print_help() {
 echo -e "\nVidOS build utility v1.00
-usage: vobu -d [directory] -v [filename/dirname] -s [build style] -g [graphics drivers] -f [format]
+usage: vobu -d [directory] -v [video filename/dirname] -b [build style] -g [graphics drivers] -f [format]
 options:\n-h help -- print this help text
 -d directory -- path to vidos components dir
--v filename or directory -- path to video file or directory of video files, supported video codecs: [ "${SUPPORTED_VID_CODECS[@]}" ]
--s build style -- style of output build, one of: [ "${STYLE_ARRAY[@]}" ] Default: ram
+-v video filename or directory -- path to video file or directory of video files, supported video codecs: [ "${SUPPORTED_VID_CODECS[@]}" ]
+-b build style -- style of output build, one of: [ "${STYLE_ARRAY[@]}" ] Default: ram
 -g graphics drivers -- binary blob graphics drivers, one or multiple of: [ "${FIRMWARE_ARRAY[@]}" ] Default: none
 -f format  -- specific video format to use, if omitted one will be autodetected. one of: [ "${SUPPORTED_VID_FORMATS[@]}" ]
--x remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc."
+-r remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc."
 exit $1
 }
 
@@ -87,11 +91,17 @@ ifAVC() {
 			if [ ! -e $DIR/avc_external_lib ]; then
 				mkdir $DIR/avc_external_lib && pushd $DIR/avc_external_lib
 				echo -e "\ninstalling fdk-aac-free as libfdk_aac"
-				wget -q -O - https://kojipkgs.fedoraproject.org//packages/fdk-aac-free/2.0.0/10.fc38/x86_64/fdk-aac-free-2.0.0-10.fc38.x86_64.rpm | rpm2cpio | cpio --quiet -idmv
+				wget -q -O - https://kojipkgs.fedoraproject.org//packages/fdk-aac-free/$FDKAACFREE_VER/$FDKAACFREE_REL/x86_64/fdk-aac-free-$FDKAACFREE_VER-$FDKAACFREE_REL.x86_64.rpm \
+				| rpm2cpio | cpio --quiet -idmv
 				mv usr/lib64/* usr/lib/ && pushd usr/lib/
+				echo $FDKAACFREE_MD5"  libfdk-aac.so.2" | md5sum -c -
+				if [ ! $? -eq 0 ]; then echo "bad download, please try again!"; popd; remove_ex_libs; exit 1; fi
 				ln -s libfdk-aac.so.2 libfdk-aac.so
 				echo -e "\ninstalling libopenh264"
-				wget -q -O - http://ciscobinary.openh264.org/libopenh264-$OPENH264_VERSION-linux64.7.so.bz2 | bunzip2 -c > libopenh264.so.$OPENH264_VERSION
+				wget -q -O - http://ciscobinary.openh264.org/libopenh264-$OPENH264_VERSION-linux64.7.so.\bz2 | \
+				bunzip2 -c > libopenh264.so.$OPENH264_VERSION
+                                echo $OPENH264_MD5"  libopenh264.so."$OPENH264_VERSION | md5sum -c -
+				if [ ! $? -eq 0 ]; then echo "bad download, please try again!"; popd; remove_ex_libs; exit 1; fi
 				chmod +x libopenh264.so.$OPENH264_VERSION
 				ln -s libopenh264.so.$OPENH264_VERSION libopenh264.so.7 && ln -s libopenh264.so.7 libopenh264.so
 				echo "finished installing external libs"
@@ -121,16 +131,16 @@ checkArg() {
 	fi
 }
 
-while getopts ":xhd:v:s:g:f:" opt; do
+while getopts ":rhd:v:b:g:f:" opt; do
 	case $opt in
-		x)
+		r)
 			remove_ex_libs
 		;;
 		h)
 			print_help 0
 		;;
 		d)
-			DIR="$OPTARG"
+			DIR=$PWD/"$OPTARG"
 		;;
 		v)
 			VIDEO="$OPTARG"
@@ -138,7 +148,7 @@ while getopts ":xhd:v:s:g:f:" opt; do
 				elif [ -f $VIDEO ]; then VIDEO_SELECTION+=($VIDEO);
 				fi
 		;;
-		s)
+		b)
 			STYLE="$OPTARG"
 		;;
 		g)
@@ -183,6 +193,9 @@ disk_VID_PATH=$DIR/vidos_iso9660/video/
 ram_VID_PATH=$DIR/initramfs_overlay/opt/
 disk_SED_ARG='s/^/\/media\/video\//'
 ram_SED_ARG='s/^/\/opt\//'
+
+find $disk_VID_PATH -iregex ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$" -delete
+find $ram_VID_PATH -iregex ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$" -delete
 
 checkVid(){
 	VIDEO_PASS=1
