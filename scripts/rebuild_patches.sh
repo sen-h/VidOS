@@ -1,5 +1,5 @@
 #!/bin/bash
-BUILDROOT_LATEST="buildroot-2023.05"
+BUILDROOT_LATEST="buildroot-2023.05.1"
 SUPPORTED_FORMATS=("av1" "avc" "webm")
 SUPPORTED_STYLES=("disk" "ram" "hybrid")
 
@@ -10,7 +10,7 @@ pushd $BUILDROOT_LATEST
 
 for FORMAT in "${SUPPORTED_FORMATS[@]}"; do
 #first savedefconfigs are created for each format
-	make O=$FORMAT savedefconfig BR2_DEFCONFIG=../configs/"vidos_"$FORMAT"_config"
+	make O=$FORMAT -j$(nproc) savedefconfig BR2_DEFCONFIG=../configs/"vidos_"$FORMAT"_config"
 	echo "vidos_"$FORMAT"_config"
 done
 

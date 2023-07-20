@@ -15,7 +15,7 @@ mkdir -p vidos_release_$NAME-source-and-licence-info/
 pushd $BUILDROOT_LATEST
 
 for FORMAT in "${SUPPORTED_FORMATS[@]}"; do
-        make O=$FORMAT legal-info
+        make O=$FORMAT -j$(nproc) legal-info
 	cp -r $FORMAT/legal-info/* ../vidos_release_$NAME-source-and-licence-info/
 	cp -r $FORMAT/legal-info/manifest.csv ../vidos_release_$NAME-source-and-licence-info/$FORMAT-manifest.csv
 	cp -r $FORMAT/legal-info/host-manifest.csv ../vidos_release_$NAME-source-and-licence-info/$FORMAT-host-manifest.csv
