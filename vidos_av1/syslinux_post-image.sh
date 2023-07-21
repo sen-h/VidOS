@@ -45,4 +45,4 @@ cp $BINARIES_DIR/rootfs.cpio.lz4 $VIDOS_BUILD_PATH/$2_kernel
 cp $BINARIES_DIR/bzImage $VIDOS_BUILD_PATH/$2_kernel
 echo "copied files into $VIDOS_ISO9660 directory"
 
-$VIDOS_RELEASE_PATH/vobu.sh -d $VIDOS_RELEASE_PATH/$2_build/ -v $BOARD_DIR/$2_video.*
+yes | $VIDOS_RELEASE_PATH/vobu.sh -d $VIDOS_RELEASE_PATH/$2_build/ -v $BOARD_DIR/test_vids/$2_video.*
