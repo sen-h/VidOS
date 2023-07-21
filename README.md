@@ -44,13 +44,15 @@ Kernel Package	|Video Container(s)			    |Supported video codec(s)|Supported aud
 
 To buld a VidOS distro, simply run the VidOS build utility (vobu.sh):
 
-`./vobu.sh -d vidos_release -v funnycatvideo.mkv`
+`./vobu.sh -v funnycatvideo.mkv`
 
-where `-d` is the path to the vidos_components directory (has the components for building VidOS distros)
-
-and `-v` is the path/filename of your video
+where `-v` is the path/filename of a video, or a directory/folder full of videos
 
 this will build an iso you can burn to an optical disk or block device(thumb drive)
+
+you can use something like [etcher](ttps://etcher.balena.io/) or dd (if you are careful!)
+
+`dd if=vidos_funnycatvideo_av1_none_ram_20xx-xx-xx.iso of=/dev/sdX bs=4M && sync`
 
 vobu.sh also supports a ton more options outlined below
  
@@ -58,12 +60,12 @@ vobu.sh also supports a ton more options outlined below
 `usage: vobu -d [directory] -v [filename/dirname] -s [build style] -g [graphics drivers] -f [format]`<br>
 `options:`<br>
 `-h help -- print this help text`<br>
-`-d directory -- path to vidos components dir`<br>
-`-v filename or directory -- path to video file or directory of video files, supported video codecs: [ av1 vp8 vp9 h264 ]`<br>
+`-d directory -- path to vidos components dir Default paths: /tmp, /opt, .`<br>
+`-v video filename or directory -- path to video file or directory of video files, supported video codecs: [ av1 vp8 vp9 h264 ]`<br>
 `-s build style -- style of output build, one of: [ disk ram hybrid ] Default: ram`<br>
 `-g graphics drivers -- binary blob graphics drivers, one or multiple of: [ amdgpu radeon i915 none all ] Default: none`<br>
 `-f format  -- specific video format to use, if omitted one will be autodetected. one of: [ av1 webm avc ]`<br>
-`-x remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc.`
+`-r remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc.`
 
 ## `-h` *help* -- print this help text
 
@@ -71,7 +73,29 @@ prints help text
 
 ## `-d` *directory* -- path to vidos components dir
 
-path to vidos_components directory - this is required
+An explicit path to the vidos_components directory.
+
+If unspecified vobu will try to use its working copy in /tmp
+but if it can't find that, it will look for a copy it can move into /tmp.
+
+First it checks /opt and then it searches current directory
+using "find -maxdepth 1".
+
+If it still can't find a copy, the path
+to one must be specified with -d "path/to/vidos_components"
+
+It will then copy that into /tmp where it can be used.
+
+Because of this, subsequent runs of vobu will not need the
+vidos_components dir specified,
+at least until the copy in /tmp gets deleted :P
+
+It should also be noted that specifiying a path will
+always install a new copy in /tmp, which will of
+course replace the old copy (if one exists).
+
+This is useful when debugging/developing to ensure you are
+always working with a fresh copy.
 
 ## `-v` *filename* or *directory* -- path to video file or directory of video files
 
@@ -224,13 +248,13 @@ selects videos in AV1 format ( AV1 video and Opus audio in an mp4, webm or matro
 
 selects videos in WEBM format (VP8 or VP9 video and Opus audio in an mp4, webm or matroska container)
 
-## `-x` *remove eXternal codecs*
+## `-r` *remove external codecs*
 removes/disables OpenH264 and fdk-aac codecs, this is required for licencing reasons.
 
 
 # Bootloader
 
-isolinux is being used beacuse I *hate* grub with a passion (also iso9660 filsystems FTW).
+isolinux is being used because I *hate* grub with a passion (also iso9660 filsystems FTW).
 eventually I would love to migrate to some sort of efi boot stub situation though.
 
 # Kernel
@@ -242,9 +266,9 @@ The kernel and its linked-in initramfs are built with absolute minimum support f
 There is a standard unixy file system in the initramfs that's linked into the kernel.(bzImage)
 The second initramfs(rootfs.cpio.lz4), which lives on disk, 
 contains a few folders that are overlayed onto the first initramfs. 
-What's inside of the second initramfs is determined by the `-g`, `-v` and `-s` options
+What's inside of the second initramfs is determined by the `-g`, `-v` and `-b` options
 The third filesystem is the iso9660 file system(disk) that constitiutes the boot media.
-Along with containing the kernel package and second initramfs, it may also contain videos depending on the `-s` option.
+Along with containing the kernel package and second initramfs, it may also contain videos depending on the `-b` option.
 
 # building VidOS components from source
 
@@ -257,7 +281,7 @@ you can then run 'build_release.sh' to bundle all of the releases into one direc
 
 afterwords cd into the release dir and run vobu as usual:
 
-`./vobu.sh -d vidos_components -v funnycatvideo.mkv`
+`./vobu.sh -v funnycatvideo.mkv`
 
 you can then dd that to a thumb drive or optical disk:
 

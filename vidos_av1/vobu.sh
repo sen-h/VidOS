@@ -1,5 +1,6 @@
 #!/bin/bash
 declare -A FORMAT_ARRAY=()
+VIDOS_COMP_VER="2.00"
 FIRMWARE_VERSION="20230625"
 OPENH264_VERSION="2.3.1"
 OPENH264_MD5="49e10a523a32e9a070c63366fc50b6af"
@@ -16,8 +17,10 @@ ARG_VALID=0
 STYLE_VALID=1
 FIRMWARE_VALID=1
 FORMAT_SPECIFIED=1
+START_DIR=$PWD
 
 remove_ex_libs() {
+        DIR=$(find /tmp ! -readable -prune -o -name vidos_components-v$VIDOS_COMP_VER-* -print)
 	if [ -e $DIR/.licenceAgreed ]; then
 		rm -r $DIR/avc_external_lib/ $DIR/.licenceAgreed
 		echo "Removed OpenH264 (OpenH264 Video Codec provided by Cisco Systems, Inc.) and fdk-aac-free"
@@ -59,8 +62,7 @@ pickCodec(){
 	if [ -z $VID_FORMAT ]; then
 		checkArg $VID_SUPPORTED "video" $SELECTED_FORMAT "format" "${SUPPORTED_VID_FORMATS[*]}"
 	fi
-
-	KERNEL_PATH=$(find $DIR -type d -name "$VID_FORMAT""_kernel")
+	KERNEL_PATH=$(find $DIR -type d -name $VID_FORMAT"_kernel")
 	if [ ! $KERNEL_PATH ]; then echo -e  "vidos" $VID_FORMAT"_kernel not found."; exit 1; fi;
 
 	if [ $VID_FORMAT == "avc" ] && [ ! -e $DIR/.licenceAgreed ]; then
@@ -86,7 +88,7 @@ pickCodec(){
 ifAVC() {
 	case $VAL in
 		y)
-			echo -e "\nOpenH264 and fdk-aac-free can be disabled/uninstalled at any time with the '-x' command line flag\n"
+			echo -e "\nOpenH264 and fdk-aac-free can be disabled/uninstalled at any time with the '-r' command line flag\n"
 			touch $DIR/.licenceAgreed
 			if [ ! -e $DIR/avc_external_lib ]; then
 				mkdir $DIR/avc_external_lib && pushd $DIR/avc_external_lib
@@ -95,13 +97,13 @@ ifAVC() {
 				| rpm2cpio | cpio --quiet -idmv
 				mv usr/lib64/* usr/lib/ && pushd usr/lib/
 				echo $FDKAACFREE_MD5"  libfdk-aac.so.2" | md5sum -c -
-				if [ ! $? -eq 0 ]; then echo "bad download, please try again!"; popd; remove_ex_libs; exit 1; fi
+				if [ ! $? -eq 0 ]; then echo "bad download, please try again!"; remove_ex_libs; exit 1; fi
 				ln -s libfdk-aac.so.2 libfdk-aac.so
 				echo -e "\ninstalling libopenh264"
 				wget -q -O - http://ciscobinary.openh264.org/libopenh264-$OPENH264_VERSION-linux64.7.so.\bz2 | \
 				bunzip2 -c > libopenh264.so.$OPENH264_VERSION
                                 echo $OPENH264_MD5"  libopenh264.so."$OPENH264_VERSION | md5sum -c -
-				if [ ! $? -eq 0 ]; then echo "bad download, please try again!"; popd; remove_ex_libs; exit 1; fi
+				if [ ! $? -eq 0 ]; then echo "bad download, please try again!"; remove_ex_libs; exit 1; fi
 				chmod +x libopenh264.so.$OPENH264_VERSION
 				ln -s libopenh264.so.$OPENH264_VERSION libopenh264.so.7 && ln -s libopenh264.so.7 libopenh264.so
 				echo "finished installing external libs"
@@ -141,6 +143,8 @@ while getopts ":rhd:v:b:g:f:" opt; do
 		;;
 		d)
 			DIR=$PWD/"$OPTARG"
+			echo "Deleting old comp dir in temp (if it exists)"
+			find /tmp ! -readable -prune -o -name vidos_components-v$VIDOS_COMP_VER-* -print  2> /dev/null -exec rm -r "{}" \;
 		;;
 		v)
 			VIDEO="$OPTARG"
@@ -160,6 +164,14 @@ while getopts ":rhd:v:b:g:f:" opt; do
 		;;
 	esac
 done
+
+if [ -z $DIR ]; then DIR=$(find /tmp ! -readable -prune -o -name vidos_components-v$VIDOS_COMP_VER-*  -print); fi
+if [ -z $DIR ]; then DIR=/opt/vidos/vidos_components-v$VIDOS_COMP_VER; fi
+if [ -z $DIR ]; then DIR=$(find ~+ -maxdepth 1 -name vidos_components-v$VIDOS_COMP_VER); fi
+if [ $(echo $DIR | cut -d "/" -f2) != "tmp" ]; then
+	cp -r $DIR /tmp/vidos_components-v$VIDOS_COMP_VER-$$
+	DIR=/tmp/vidos_components-v$VIDOS_COMP_VER-$$
+fi
 
 if [ -z $STYLE ]; then STYLE="ram"; fi
 if [ -z $FIRMWARE ]; then FIRMWARE="none"; fi
@@ -289,22 +301,21 @@ if [ $STYLE = "hybrid" ]; then
 fi
 
 cp $KERNEL_PATH/bzImage $DIR/vidos_iso9660/kernel
-cd $DIR/initramfs_overlay
-find . | LC_ALL=C sort | cpio --quiet -o -H  newc > ../vidos_iso9660/kernel/rootfs.cpio
-cd ../
-lz4 -l -9 -c vidos_iso9660/kernel/rootfs.cpio > vidos_iso9660/kernel/rootfs.cpio.lz4
-rm vidos_iso9660/kernel/rootfs.cpio
+find $DIR/initramfs_overlay/* | LC_ALL=C sort | cpio --quiet -o -H  newc > $DIR/vidos_iso9660/kernel/rootfs.cpio
+lz4 -l -9 -c $DIR/vidos_iso9660/kernel/rootfs.cpio > $DIR/vidos_iso9660/kernel/rootfs.cpio.lz4
+rm $DIR/vidos_iso9660/kernel/rootfs.cpio
 echo "installed "$VIDEO" as a new video and rebuilt playlist"
 echo "rebuilding iso"
-xorriso -as mkisofs -quiet -o ../vidos_$FIRSTVID_NAME"_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$(date +%F).iso -isohybrid-mbr isohdpfx.bin \
+pushd $DIR
+xorriso -as mkisofs -quiet -o $START_DIR/$vidos_$FIRSTVID_NAME"_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$(date +%F).iso -isohybrid-mbr isohdpfx.bin \
 -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table \
 vidos_iso9660
 
-find $PWD -iregex ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$" -delete
-find $PWD -name "playlist.*" -delete
-find $PWD/initramfs_overlay -name "S03*" -delete
-rm -rf $PWD/initramfs_overlay/usr
-rm -rf $PWD/initramfs_overlay/lib/firmware/*
-rm -rf $PWD/vidos_iso9660/kernel/*
+find $DIR -iregex ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$" -delete
+find $DIR -name "playlist.*" -delete
+find $DIR/initramfs_overlay -name "S03*" -delete
+rm -rf $DIR/initramfs_overlay/usr
+rm -rf $DIR/initramfs_overlay/lib/firmware/*
+rm -rf $DIR/vidos_iso9660/kernel/*
 
 echo "built" vidos_$FIRSTVID_NAME"_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$(date +%F).iso
