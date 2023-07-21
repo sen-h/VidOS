@@ -32,9 +32,9 @@ exit 0
 
 print_help() {
 echo -e "\nVidOS build utility v1.00
-usage: vobu -d [directory] -v [video filename/dirname] -b [build style] -g [graphics drivers] -f [format]
+usage: vobu -d [directory] -v [video filename/dirname] -b [build style] -g [graphics drivers] -f [format] -r [remove codecs]
 options:\n-h help -- print this help text
--d directory -- path to vidos components dir
+-d directory -- path to vidos components dir, Default paths: /tmp, /opt, */
 -v video filename or directory -- path to video file or directory of video files, supported video codecs: [ "${SUPPORTED_VID_CODECS[@]}" ]
 -b build style -- style of output build, one of: [ "${STYLE_ARRAY[@]}" ] Default: ram
 -g graphics drivers -- binary blob graphics drivers, one or multiple of: [ "${FIRMWARE_ARRAY[@]}" ] Default: none
@@ -142,7 +142,7 @@ while getopts ":rhd:v:b:g:f:" opt; do
 			print_help 0
 		;;
 		d)
-			DIR=$PWD/"$OPTARG"
+			DIR="$OPTARG"
 			echo "Deleting old comp dir in temp (if it exists)"
 			find /tmp ! -readable -prune -o -name vidos_components-v$VIDOS_COMP_VER-* -print  2> /dev/null -exec rm -r "{}" \;
 		;;
