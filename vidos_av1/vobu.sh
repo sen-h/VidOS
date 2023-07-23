@@ -301,21 +301,26 @@ if [ $STYLE = "hybrid" ]; then
 fi
 
 cp $KERNEL_PATH/bzImage $DIR/vidos_iso9660/kernel
-find $DIR/initramfs_overlay/* | LC_ALL=C sort | cpio --quiet -o -H  newc > $DIR/vidos_iso9660/kernel/rootfs.cpio
+pushd $DIR/initramfs_overlay
+find . | LC_ALL=C sort | cpio --quiet -o -H  newc > $DIR/vidos_iso9660/kernel/rootfs.cpio
+popd
 lz4 -l -9 -c $DIR/vidos_iso9660/kernel/rootfs.cpio > $DIR/vidos_iso9660/kernel/rootfs.cpio.lz4
 rm $DIR/vidos_iso9660/kernel/rootfs.cpio
 echo "installed "$VIDEO" as a new video and rebuilt playlist"
 echo "rebuilding iso"
 pushd $DIR
-xorriso -as mkisofs -quiet -o $START_DIR/$vidos_$FIRSTVID_NAME"_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$(date +%F).iso -isohybrid-mbr isohdpfx.bin \
+xorriso -as mkisofs -quiet -o $START_DIR/vidos_$FIRSTVID_NAME"_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$(date +%F).iso -isohybrid-mbr isohdpfx.bin \
 -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table \
 vidos_iso9660
 
-find $DIR -iregex ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$" -delete
-find $DIR -name "playlist.*" -delete
-find $DIR/initramfs_overlay -name "S03*" -delete
-rm -rf $DIR/initramfs_overlay/usr
-rm -rf $DIR/initramfs_overlay/lib/firmware/*
-rm -rf $DIR/vidos_iso9660/kernel/*
+cleanUp() {
+	find $DIR -iregex ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$" -delete
+	find $DIR -name "playlist.*" -delete
+	find $DIR/initramfs_overlay -name "S03*" -delete
+	rm -rf $DIR/initramfs_overlay/usr
+	rm -rf $DIR/initramfs_overlay/lib/firmware/*
+	rm -rf $DIR/vidos_iso9660/kernel/*
+}
 
+cleanUp
 echo "built" vidos_$FIRSTVID_NAME"_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$(date +%F).iso
