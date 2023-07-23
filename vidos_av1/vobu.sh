@@ -54,7 +54,7 @@ pickCodec(){
 			fi
 		done
 	else
-		DETECTED_VID_CODEC=$(ffprobe -v quiet -show_streams $1 | grep -w codec_name | sed -n 1p | cut -d'=' -f2)
+		DETECTED_VID_CODEC=$(ffprobe -v quiet -show_streams "$1" | grep -w codec_name | sed -n 1p | cut -d'=' -f2)
 		VID_FORMAT=${FORMAT_ARRAY[$DETECTED_VID_CODEC]}
 		if  [ $VID_FORMAT ]; then VID_SUPPORTED=0; fi
 		checkArg $VID_SUPPORTED "video" $DETECTED_VID_CODEC "codec" "${SUPPORTED_VID_CODECS[*]}"
@@ -134,7 +134,7 @@ checkArg() {
 }
 
 while getopts ":rhd:v:b:g:f:" opt; do
-	case $opt in
+	case "$opt" in
 		r)
 			remove_ex_libs
 		;;
@@ -148,8 +148,8 @@ while getopts ":rhd:v:b:g:f:" opt; do
 		;;
 		v)
 			VIDEO="$OPTARG"
-				if [ -d $VIDEO ]; then VIDEO_DIR=$VIDEO; VIDEO_NAME="dir"
-				elif [ -f $VIDEO ]; then VIDEO_SELECTION+=($VIDEO);
+				if [ -d "$VIDEO" ]; then VIDEO_DIR="$VIDEO"; VIDEO_NAME="dir"
+				elif [ -f "$VIDEO" ]; then VIDEO_SELECTION+=("$VIDEO");
 				fi
 		;;
 		b)
@@ -183,7 +183,7 @@ checkPaths() {
 	        ARG_VALID=1
 	elif [[ "$1" = -*  ]]; then echo "error:" -${2:0:1} "("$2") is using [" $1 "] as an argument, argument should be a path to a" $2
 	        ARG_VALID=1
-	elif [ ! -e $1 ] ; then
+	elif [ ! -e "$1" ] ; then
 	        echo "error: can't find" -${2:0:1} "("$2") \"$1\", Please specify a valid $2 with -${2:0:1}"
 		ARG_VALID=1
 	fi
@@ -197,7 +197,7 @@ checkOpts() {
 checkOpts $STYLE "build style" "${STYLE_ARRAY[*]}"
 checkOpts $FIRMWARE "graphics drivers" "${FIRMWARE_ARRAY[*]}"
 checkPaths $DIR "directory"
-checkPaths $VIDEO "video or video dir"
+checkPaths "$VIDEO" "video or video dir"
 
 if [ $ARG_VALID -eq 1 ]; then print_help 2; fi
 
@@ -269,14 +269,14 @@ checkArg $FIRMWARE_VALID "graphics drivers" $i "option" "${FIRMWARE_ARRAY[*]}"
 
 if [ $VIDEO_DIR ]; then
 	FIRST_VID=$(find $VIDEO_DIR -type f | grep -m1 ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$")
-	pickCodec $FIRST_VID
+	pickCodec "$FIRST_VID"
 	find $VIDEO_DIR -type f -iregex ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$" -exec bash -c 'checkVid "$0" "$1" "$2" "$3" "$4" "$5"' '{}' $VID_FORMAT ${!VID_PATH} ${!SED_ARG} $STYLE $ram_VID_PATH \;
 else
 	FIRST_VID="${VIDEO_SELECTION[0]}"
-	pickCodec $FIRST_VID
+	pickCodec "$FIRST_VID"
 	echo "format:" $VID_FORMAT
 	for SELECTED_VID in "${VIDEO_SELECTION[@]}"; do
-		checkVid $SELECTED_VID $VID_FORMAT ${!VID_PATH} ${!SED_ARG} $STYLE $ram_VID_PATH
+		checkVid "$SELECTED_VID" $VID_FORMAT ${!VID_PATH} ${!SED_ARG} $STYLE $ram_VID_PATH
 	done
 fi
 
@@ -309,7 +309,7 @@ rm $DIR/vidos_iso9660/kernel/rootfs.cpio
 echo "installed "$VIDEO" as a new video and rebuilt playlist"
 echo "rebuilding iso"
 pushd $DIR
-xorriso -as mkisofs -quiet -o $START_DIR/vidos_$FIRSTVID_NAME"_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$(date +%F).iso -isohybrid-mbr isohdpfx.bin \
+xorriso -as mkisofs -quiet -o $START_DIR/vidos_"$FIRSTVID_NAME""_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$(date +%F).iso -isohybrid-mbr isohdpfx.bin \
 -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table \
 vidos_iso9660
 
