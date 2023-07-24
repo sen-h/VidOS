@@ -34,7 +34,7 @@ print_help() {
 echo -e "\nVidOS build utility v1.00
 usage: vobu -d [directory] -v [video filename/dirname] -b [build style] -g [graphics drivers] -f [format] -r [remove codecs]
 options:\n-h help -- print this help text
--d directory -- path to vidos components dir, Default paths: /tmp, /opt, */
+-d directory -- path to vidos components dir, Default paths: /tmp, /opt, ./
 -v video filename or directory -- path to video file or directory of video files, supported video codecs: [ "${SUPPORTED_VID_CODECS[@]}" ]
 -b build style -- style of output build, one of: [ "${STYLE_ARRAY[@]}" ] Default: ram
 -g graphics drivers -- binary blob graphics drivers, one or multiple of: [ "${FIRMWARE_ARRAY[@]}" ] Default: none
@@ -144,6 +144,7 @@ while getopts ":rhd:v:b:g:f:" opt; do
 		d)
 			DIR="$OPTARG"
 			echo "Deleting old comp dir in temp (if it exists)"
+			if [ ! -d $DIR/vidos_iso9660 ]; then echo "not a valid vidos_components dir!"; exit 1; fi
 			find /tmp ! -readable -prune -o -name vidos_components-v$VIDOS_COMP_VER-* -print  2> /dev/null -exec rm -r "{}" \;
 		;;
 		v)
@@ -167,8 +168,9 @@ done
 
 if [ -z $DIR ]; then DIR=$(find /tmp ! -readable -prune -o -name vidos_components-v$VIDOS_COMP_VER-*  -print); fi
 if [ -z $DIR ]; then DIR=/opt/vidos/vidos_components-v$VIDOS_COMP_VER; fi
-if [ -z $DIR ]; then DIR=$(find ~+ -maxdepth 1 -name vidos_components-v$VIDOS_COMP_VER); fi
-if [ $(echo $DIR | cut -d "/" -f2) != "tmp" ]; then
+if [ -z $DIR ]; then DIR=$(./vidos_components-v$VIDOS_COMP_VER); fi
+echo $DIR | head -c 5 | grep -q "tmp"
+if [ $? -ne 0 ]; then
 	cp -r $DIR /tmp/vidos_components-v$VIDOS_COMP_VER-$$
 	DIR=/tmp/vidos_components-v$VIDOS_COMP_VER-$$
 fi

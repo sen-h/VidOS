@@ -60,7 +60,7 @@ vobu.sh also supports a ton more options outlined below
 `usage: vobu -d [directory] -v [filename/dirname] -b [build style] -g [graphics drivers] -f [format] -r [remove codecs]`<br>
 `options:`<br>
 `-h help -- print this help text`<br>
-`-d directory -- path to vidos components dir, Default paths: /tmp, /opt, */`<br>
+`-d directory -- path to vidos components dir, Default paths: /tmp, /opt, ./`<br>
 `-v video filename or directory -- path to video file or directory of video files, supported video codecs: [ av1 vp8 vp9 h264 ]`<br>
 `-b build style -- style of output build, one of: [ disk ram hybrid ] Default: ram`<br>
 `-g graphics drivers -- binary blob graphics drivers, one or multiple of: [ amdgpu radeon i915 none all ] Default: none`<br>
@@ -78,8 +78,7 @@ An explicit path to the vidos_components directory.
 If unspecified vobu will try to use its working copy in /tmp
 but if it can't find that, it will look for a copy it can move into /tmp.
 
-First it checks /opt, and then it searches the current directory
-using "find -maxdepth 1".
+First it checks /opt, and then it searches the current directory.
 
 If it still can't find a copy, the path
 to one must be specified with -d "path/to/vidos_components"
@@ -320,13 +319,15 @@ This is to avoid an excessive kernel size and prevent it from being used for nef
 
 ~~* make isolinux quieter (or silent)~~ *implemented with optional patch*
 
-* figure out efi bootstub stuff
+* figure out efi bootstub stuff *probably in next release*
 
 ~~* more codec support~~ *supports the 3 major web codecs*
 
 ~~* support for a playlist of mulitple videos instead of just one~~ *implemented*
 
 * support ARM64/rpi4 *in process*
+
+* more hw platform support
 
 # Licence 
 
