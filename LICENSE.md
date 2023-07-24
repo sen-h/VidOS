@@ -1,4 +1,4 @@
-Copyright (C) 2020-2021 by sen-h
+Copyright (C) 2020-2023 by sen-h
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted.
