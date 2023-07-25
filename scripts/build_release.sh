@@ -1,5 +1,5 @@
 #!/bin/bash
-VIDOS_VER="2.00"
+VIDOS_VER="2.0.0"
 BUILDROOT_LATEST="buildroot-2023.05.1"
 KERNEL_LATEST="5.4.249"
 KERNEL_LATEST_MAJOR=$(echo $KERNEL_LATEST | head -c 1)
@@ -37,7 +37,9 @@ done
 
 popd
 
-cp vidos_av1/vobu.sh README.md release_paperwork/uninstall.sh release_paperwork/install.sh vidos_release_$NAME/
+cp -r vidos_av1/vobu.sh vidos_av1/test_vids LICENSE.md release_paperwork/README.md release_paperwork/*install.sh vidos_release_$NAME/
+
+cp LICENCE.md vidos_release_$NAME-source-and-licence-info/
 
 wget https://cdn.kernel.org/pub/linux/kernel/v$KERNEL_LATEST_MAJOR.x/linux-$KERNEL_LATEST.tar.xz -O vidos_release_$NAME-source-and-licence-info/linux-$KERNEL_LATEST.tar.xz
 wget https://buildroot.org/downloads/$BUILDROOT_LATEST.tar.xz -O  vidos_release_$NAME-source-and-licence-info/$BUILDROOT_LATEST.tar.xz
