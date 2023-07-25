@@ -1,4 +1,24 @@
-# VidOS v2.00 ""
+# VidOS v2.0.0 "Carla"
+
+
+"And you shall find each thought.
+Nobler and finer-wrought,
+Eager to enter once again;
+For you shall be their goal.
+And then,
+Like wanderers on a homeward track,
+Beauty shall bring them back;
+Bringing a thousand tales with them .  .  .
+Back to the broad expanse and breathless view;
+To this placid forest's glittering hem,—
+They shall come back to things they never
+   knew;
+Visions of men and dreams unfurled—
+Back to a richer and more radiant world,—
+And to you."
+
+From "Witter Bynner Is Prophetic Concerning *Bo-peep in the New World*",
+by Louis Untermeyer
 
 # About
 
@@ -46,34 +66,41 @@ under a debian-esque linux distro try something like:
 
 sudo apt-get install ffmpeg bzip2 rpm2cpio xorriso lz4
 
+# Installation instructions
+
+VidOS (comprising vobu.sh and the vidos_components dir)
+can be optionally installed by running: 
+
+./install.sh
+
+vobu.sh can also be directly used from the release dir.
 
 # Getting Started
 
 To buld a VidOS distro, simply run the VidOS build utility (vobu.sh):
 
-`./vobu.sh -d vidos_release -v funnycatvideo.mkv`
+`./vobu.sh -v funnycatvideo.mkv`
 
-where `-d` is the path to the vidos_components directory (has the components for building VidOS distros)
-
-and `-v` is the path/filename of your video
+where `-v` is the path/filename of a video, or a directory/folder full of videos
 
 this will build an iso you can burn to an optical disk or block device(thumb drive)
 
-you can use something like [etcher](ttps://etcher.balena.io/) or dd (if you are careful!)
+you can use something like [etcher](https://etcher.balena.io/) or dd (if you are careful!)
 
 `dd if=vidos_funnycatvideo_av1_none_ram_20xx-xx-xx.iso of=/dev/sdX bs=4M && sync`
 
 vobu.sh also supports a ton more options outlined below
  
 `VidOS build utility v1.xx`<br>
-`usage: vobu -d [directory] -v [filename/dirname] -s [build style] -g [graphics drivers] -f [format]`<br>
+`usage: vobu -d [directory] -v [filename/dirname] -b [build style] -g [graphics drivers] -f [format] -r [remove codecs]`<br>
 `options:`<br>
 `-h help -- print this help text`<br>
-`-d directory -- path to vidos components dir`<br>
-`-v filename or directory -- path to video file or directory of video files, supported video codecs: [ av1 vp8 vp9 h264 ]`<br>
-`-s build style -- style of output build, one of: [ disk ram hybrid ] Default: ram`<br>
+`-d directory -- path to vidos components dir, Default paths: /tmp, /opt, ./`<br>
+`-v video filename or directory -- path to video file or directory of video files, supported video codecs: [ av1 vp8 vp9 h264 ]`<br>
+`-b build style -- style of output build, one of: [ disk ram hybrid ] Default: ram`<br>
 `-g graphics drivers -- binary blob graphics drivers, one or multiple of: [ amdgpu radeon i915 none all ] Default: none`<br>
 `-f format  -- specific video format to use, if omitted one will be autodetected. one of: [ av1 webm avc ]`<br>
+`-r remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc.`
 
 ## `-h` *help* -- print this help text
 
@@ -81,7 +108,28 @@ prints help text
 
 ## `-d` *directory* -- path to vidos components dir
 
-path to vidos_components directory - this is required
+An explicit path to the vidos_components directory.
+
+If unspecified vobu will try to use its working copy in /tmp
+but if it can't find that, it will look for a copy it can move into /tmp.
+
+First it checks /opt, and then it searches the current directory.
+
+If it still can't find a copy, the path
+to one must be specified with -d "path/to/vidos_components"
+
+It will then copy that into /tmp where it can be used.
+
+Because of this, subsequent runs of vobu will not need the
+vidos_components dir specified,
+at least until the copy in /tmp gets deleted :P
+
+It should also be noted that specifiying a path will
+always install a new copy in /tmp, which will of
+course replace the old copy (if one exists).
+
+This is useful when debugging/developing to ensure you are
+always working with a fresh copy.
 
 ## `-v` *filename* or *directory* -- path to video file or directory of video files
 
@@ -140,7 +188,7 @@ or:
 
 vobu will only find rad_rimshots.webm
 
-## -s *style* -- build style
+## -b *build style* -- where/how the video(s) are stored.
 
 the style of build vidos will output, different styles mean different
 behaviours for where the videos are stored in the final image.
@@ -234,9 +282,11 @@ selects videos in AV1 format ( AV1 video and Opus audio in an mp4, webm or matro
 
 selects videos in WEBM format (VP8 or VP9 video and Opus audio in an mp4, webm or matroska container)
 
+## `-r` *remove external codecs*
+removes/disables OpenH264 and fdk-aac codecs, this is required for licencing reasons.
 
-# Licenses
+# Licences
 
-The buildroot configs, configuration scripts and other config files belonging to the VidOS project are 0BSD licensed. 
-The compiled output of these however (which constitutes this release) is a linux distribution comprised of many packages with their own licenses.
-These are contained in the license.tar.gz archive. The full source and licenses of all packages used by buildroot are contained in legal.tar.gz archive.
+The various scripts, buildroot configs, configuration scripts and other config files belonging to the VidOS project are 0BSD licenced. 
+The compiled output of these however (which constitutes this release) is a linux distribution comprised of many packages with their own licences.
+These are contained in the legal.tar.gz archive for the given release at https://github.com/sen-h/VidOS/releases
