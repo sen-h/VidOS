@@ -49,8 +49,8 @@ if [ $BUILDROOT_EXISTS -eq 1 ]; then
 	wget -qO - https://buildroot.org/downloads/$BUILDROOT.tar.gz | tar zxf - &&
 	echo "finished unpacking "$BUILDROOT &&
 	#move configuration dir into board dir
-	cp -r vidos_av1 $BUILDROOT/board/ &&
-	echo "moved vidos_av1 dir to "$BUILDROOT
+	cp -r vidos_x86_64 $BUILDROOT/board/ &&
+	echo "moved vidos_x86_64 dir to "$BUILDROOT
 fi
 
 echo $BUILDROOT_SYSTEM_PATH
