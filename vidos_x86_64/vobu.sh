@@ -1,6 +1,8 @@
 #!/bin/bash
 declare -A FORMAT_ARRAY=()
-VIDOS_COMP_VER="2.0.0"
+GIT_COMMIT_HASH=$(git log -1 --format=%h)
+VOBU_VER="v1.0.0-"$GIT_COMMIT_HASH
+VIDOS_COMP_VER="2.0.0-"$GIT_COMMIT_HASH
 FIRMWARE_VERSION="20230625"
 OPENH264_VERSION="2.3.1"
 OPENH264_MD5="49e10a523a32e9a070c63366fc50b6af"
@@ -12,6 +14,7 @@ SUPPORTED_VID_CODECS=( "av1" "vp8" "vp9" "h264")
 SUPPORTED_VID_FORMATS=( "av1" "webm" "avc")
 STYLE_ARRAY=( "disk" "ram" "hybrid" )
 FIRMWARE_ARRAY=( "amdgpu" "radeon" "i915" "none" "all")
+SUFFIX_REGEX=".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$"
 VID_SUPPORTED=1
 ARG_VALID=0
 STYLE_VALID=1
@@ -31,7 +34,7 @@ exit 0
 }
 
 print_help() {
-echo -e "\nVidOS build utility v1.00
+echo -e "\nVidOS build utility v1.0.0-$(git log -1 --format=%h)
 usage: vobu -d [directory] -v [video filename/dirname] -b [build style] -g [graphics drivers] -f [format] -r [remove codecs]
 options:\n-h help -- print this help text
 -d directory -- path to vidos components dir, Default paths: /tmp, /opt, ./
@@ -208,8 +211,8 @@ ram_VID_PATH=$DIR/initramfs_overlay/opt/
 disk_SED_ARG='s/^/\/media\/video\//'
 ram_SED_ARG='s/^/\/opt\//'
 
-find $disk_VID_PATH -iregex ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$" -delete
-find $ram_VID_PATH -iregex ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$" -delete
+find $disk_VID_PATH -iregex $SUFFIX_REGEX -delete
+find $ram_VID_PATH -iregex $SUFFIX_REGEX -delete
 
 checkVid(){
 	VIDEO_PASS=1
@@ -270,9 +273,9 @@ done
 checkArg $FIRMWARE_VALID "graphics drivers" $i "option" "${FIRMWARE_ARRAY[*]}"
 
 if [ $VIDEO_DIR ]; then
-	FIRST_VID=$(find $VIDEO_DIR -type f | grep -m1 ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$")
+	FIRST_VID=$(find $VIDEO_DIR -type f | grep -m1 $SUFFIX_REGEX)
 	pickCodec "$FIRST_VID"
-	find $VIDEO_DIR -type f -iregex ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$" -exec bash -c 'checkVid "$0" "$1" "$2" "$3" "$4" "$5"' '{}' $VID_FORMAT ${!VID_PATH} ${!SED_ARG} $STYLE $ram_VID_PATH \;
+	find $VIDEO_DIR -type f -iregex $SUFFIX_REGEX -exec bash -c 'checkVid "$0" "$1" "$2" "$3" "$4" "$5"' '{}' $VID_FORMAT ${!VID_PATH} ${!SED_ARG} $STYLE $ram_VID_PATH \;
 else
 	FIRST_VID="${VIDEO_SELECTION[0]}"
 	pickCodec "$FIRST_VID"
@@ -316,7 +319,7 @@ xorriso -as mkisofs -quiet -o $START_DIR/vidos_"$FIRSTVID_NAME""_"$VID_FORMAT"_"
 vidos_iso9660
 
 cleanUp() {
-	find $DIR -iregex ".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$" -delete
+	find $DIR -iregex $SUFFIX_REGEX -delete
 	find $DIR -name "playlist.*" -delete
 	find $DIR/initramfs_overlay -name "S03*" -delete
 	rm -rf $DIR/initramfs_overlay/usr

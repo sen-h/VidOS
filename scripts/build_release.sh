@@ -1,5 +1,6 @@
 #!/bin/bash
-VIDOS_VER="2.0.0"
+GIT_COMMIT_HASH=$(git log -1 --format=%h)
+VIDOS_VER="2.0.0-"$GIT_COMMIT_HASH
 BUILDROOT_LATEST="buildroot-2023.05.1"
 KERNEL_LATEST="5.4.249"
 KERNEL_LATEST_MAJOR=$(echo $KERNEL_LATEST | head -c 1)
@@ -8,7 +9,7 @@ SUPPORTED_STYLES=("disk" "ram" "hybrid")
 
 NAME=$1
 
-if [ -z $NAME ]; then NAME=$(date +%F); fi
+if [ -z $NAME ]; then NAME=$GIT_COMMIT_HASH; fi
 
 mkdir -p vidos_release_$NAME/vidos_components-v$VIDOS_VER
 mkdir -p vidos_release_$NAME-source-and-licence-info/
