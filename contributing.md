@@ -8,4 +8,4 @@ Read on!
 # Reporting issues
 * Please ask questions
 * Attacking ideas is how we make them better; attacking people is how we make them sad. Be Nice!
-* Please be prepared to explain the problem as thouroghly as possible. 
+* Please be prepared to explain the problem as thoroughly as possible. 
