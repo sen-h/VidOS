@@ -14,16 +14,18 @@ SUPPORTED_VID_CODECS=( "av1" "vp8" "vp9" "h264")
 SUPPORTED_VID_FORMATS=( "av1" "webm" "avc")
 STYLE_ARRAY=( "disk" "ram" "hybrid" )
 FIRMWARE_ARRAY=( "amdgpu" "radeon" "i915" "none" "all")
+BOOTLOADER_ARRAY=( "efi" "bios" "both")
 SUFFIX_REGEX=".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$"
 VID_SUPPORTED=1
 ARG_VALID=0
 STYLE_VALID=1
 FIRMWARE_VALID=1
+BOOTLOADER_VALID=1
 FORMAT_SPECIFIED=1
 START_DIR=$PWD
 
 remove_ex_libs() {
-        DIR=$(find /tmp ! -readable -prune -o -name vidos_components-v$VIDOS_COMP_VER-* -print)
+        DIR=$(find /tmp ! -readable -prune -o -name vidos_components-$VIDOS_COMP_VER-* -print)
 	if [ -e $DIR/.licenceAgreed ]; then
 		rm -r $DIR/avc_external_lib/ $DIR/.licenceAgreed
 		echo "Removed OpenH264 (OpenH264 Video Codec provided by Cisco Systems, Inc.) and fdk-aac-free"
@@ -34,7 +36,7 @@ exit 0
 }
 
 print_help() {
-echo -e "\nVidOS build utility v1.0.0-$(git log -1 --format=%h)
+echo -e "\nVidOS build utility $VOBU_VER
 usage: vobu -d [directory] -v [video filename/dirname] -b [build style] -g [graphics drivers] -f [format] -r [remove codecs]
 options:\n-h help -- print this help text
 -d directory -- path to vidos components dir, Default paths: /tmp, /opt, ./
@@ -42,7 +44,8 @@ options:\n-h help -- print this help text
 -b build style -- style of output build, one of: [ "${STYLE_ARRAY[@]}" ] Default: ram
 -g graphics drivers -- binary blob graphics drivers, one or multiple of: [ "${FIRMWARE_ARRAY[@]}" ] Default: none
 -f format  -- specific video format to use, if omitted one will be autodetected. one of: [ "${SUPPORTED_VID_FORMATS[@]}" ]
--r remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc."
+-r remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc.
+-l bootloader/manager for firmware -- select bootloader depending on machine firmware. one of: [ "${BOOTLOADER_ARRAY[@]}" ] Default: bios"
 exit $1
 }
 
@@ -136,7 +139,7 @@ checkArg() {
 	fi
 }
 
-while getopts ":rhd:v:b:g:f:" opt; do
+while getopts ":rhd:v:b:g:f:l:" opt; do
 	case "$opt" in
 		r)
 			remove_ex_libs
@@ -148,7 +151,7 @@ while getopts ":rhd:v:b:g:f:" opt; do
 			DIR="$OPTARG"
 			echo "Deleting old comp dir in temp (if it exists)"
 			if [ ! -d $DIR/vidos_iso9660 ]; then echo "not a valid vidos_components dir!"; exit 1; fi
-			find /tmp ! -readable -prune -o -name vidos_components-v$VIDOS_COMP_VER-* -print  2> /dev/null -exec rm -r "{}" \;
+			find /tmp ! -readable -prune -o -name vidos_components-$VIDOS_COMP_VER-* -print  2> /dev/null -exec rm -r "{}" \;
 		;;
 		v)
 			VIDEO="$OPTARG"
@@ -166,20 +169,24 @@ while getopts ":rhd:v:b:g:f:" opt; do
 			SELECTED_FORMAT="$OPTARG"
 			FORMAT_SPECIFIED=0
 		;;
+		l)
+			BOOTLOADER="$OPTARG";
+		;;
 	esac
 done
 
-if [ -z $DIR ]; then DIR=$(find /tmp ! -readable -prune -o -name vidos_components-v$VIDOS_COMP_VER-*  -print); fi
-if [ -z $DIR ]; then DIR=/opt/vidos/vidos_components-v$VIDOS_COMP_VER; fi
-if [ -z $DIR ]; then DIR=$(./vidos_components-v$VIDOS_COMP_VER); fi
+if [ -z $DIR ]; then DIR=$(find /tmp ! -readable -prune -o -name vidos_components-$VIDOS_COMP_VER-*  -print); fi
+if [ -z $DIR ]; then DIR=$(find /opt/vidos/ -type d -name vidos_components-$VIDOS_COMP_VER); fi
+if [ -z $DIR ]; then DIR=$(find -maxdepth 1 -type d -name vidos_components-$VIDOS_COMP_VER); fi
 echo $DIR | head -c 5 | grep -q "tmp"
 if [ $? -ne 0 ]; then
-	cp -r $DIR /tmp/vidos_components-v$VIDOS_COMP_VER-$$
-	DIR=/tmp/vidos_components-v$VIDOS_COMP_VER-$$
+	cp -r $DIR /tmp/vidos_components-$VIDOS_COMP_VER-$$
+	DIR=/tmp/vidos_components-$VIDOS_COMP_VER-$$
 fi
 
 if [ -z $STYLE ]; then STYLE="ram"; fi
 if [ -z $FIRMWARE ]; then FIRMWARE="none"; fi
+if [ -z $BOOTLOADER ]; then BOOTLOADER="bios"; fi
 FIRMWARE_SELECTION+=($FIRMWARE)
 
 checkPaths() {
@@ -201,6 +208,7 @@ checkOpts() {
 
 checkOpts $STYLE "build style" "${STYLE_ARRAY[*]}"
 checkOpts $FIRMWARE "graphics drivers" "${FIRMWARE_ARRAY[*]}"
+checkOpts $BOOTLOADER "bootloader" "${BOOTLOADER_ARRAY[*]}"
 checkPaths $DIR "directory"
 checkPaths "$VIDEO" "video or video dir"
 
@@ -224,7 +232,7 @@ checkVid(){
 	if [ $VID_ENCODING ]; then
 		for item in "${SUPPORTED_VID_CODECS[@]}"
 		do
-		        if [ $item == $VID_ENCODING ]; then
+		        if [ $item = $VID_ENCODING ]; then
 				VIDEO_PASS=0
 				FOUND_FORMAT=${FORMAT_ARRAY[$VID_ENCODING]}
 		        fi
@@ -238,8 +246,18 @@ checkVid(){
 
 export -f checkVid
 
+
+for BOOTLOADER_OPTION in "${BOOTLOADER_ARRAY[@]}"; do
+        if [ $BOOTLOADER = $BOOTLOADER_OPTION ]; then
+		BOOTLOADER_VALID=0
+		XORRISO_CMD=$BOOTLOADER_OPTION"_XORRISO_CMD"
+	fi
+done
+
+checkArg $BOOTLOADER_VALID "bootloader" $BOOTLOADER "option" "${BOOTLOADER_ARRAY[*]}"
+
 for STYLE_OPTION in "${STYLE_ARRAY[@]}"; do
-        if [ $STYLE == $STYLE_OPTION ]; then
+        if [ $STYLE = $STYLE_OPTION ]; then
 		STYLE_VALID=0
 		VID_PATH=$STYLE"_VID_PATH"
 		SED_ARG=$STYLE"_SED_ARG"
@@ -314,9 +332,37 @@ rm $DIR/vidos_iso9660/kernel/rootfs.cpio
 echo "installed "$VIDEO" as a new video and rebuilt playlist"
 echo "rebuilding iso"
 pushd $DIR
-xorriso -as mkisofs -quiet -o $START_DIR/vidos_"$FIRSTVID_NAME""_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$(date +%F).iso -isohybrid-mbr isohdpfx.bin \
--c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table \
-vidos_iso9660
+
+build_esp(){
+	COUNT=$(du -BM ESP/ | head -n 1 | cut -d "M" -f1 )
+	dd if=/dev/zero of=vidos_iso9660/efi/efi.img bs=1M count=$COUNT
+	mformat -i vidos_iso9660/efi/efi.img
+	mcopy -s -i vidos_iso9660/efi/efi.img ESP/* ::
+}
+
+case $BOOTLOADER in
+	efi)
+		mv vidos_iso9660/kernel/* ESP/EFI/BOOT/
+		build_esp
+	;;
+
+	bios)
+		#do nothing here, because bios is default choice and image is setup for bios boot already. This will prolly change by v3.0.0
+	;;
+
+	both)
+		cp $DIR/vidos_iso9660/kernel/* ESP/EFI/BOOT/
+		build_esp
+	;;
+esac
+
+ISO_NAME="$START_DIR/vidos_"$FIRSTVID_NAME""_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$BOOTLOADER"_"$(date +%F).iso"
+
+both_XORRISO_CMD="xorriso -as mkisofs -o $ISO_NAME -isohybrid-mbr isohdpfx.bin -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4  -boot-info-table -eltorito-alt-boot -e efi/efi.img -no-emul-boot -append_partition 2 0xef vidos_iso9660/efi/efi.img vidos_iso9660"
+efi_XORRISO_CMD="xorriso -as mkisofs -o $ISO_NAME -e efi/efi.img -no-emul-boot -append_partition 2 0xef vidos_iso9660/efi/efi.img vidos_iso9660"
+bios_XORRISO_CMD="xorriso -as mkisofs -o $ISO_NAME -isohybrid-mbr isohdpfx.bin -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4  -boot-info-table vidos_iso9660"
+
+${!XORRISO_CMD}
 
 cleanUp() {
 	find $DIR -iregex $SUFFIX_REGEX -delete
@@ -325,7 +371,10 @@ cleanUp() {
 	rm -rf $DIR/initramfs_overlay/usr
 	rm -rf $DIR/initramfs_overlay/lib/firmware/*
 	rm -rf $DIR/vidos_iso9660/kernel/*
+	rm -rf $DIR/vidos_iso9660/efi/*
+	rm -rf $DIR/ESP/EFI/BOOT/bzImage
+	rm -rf $DIR/ESP/EFI/BOOT/rootfs.cpio.lz4
 }
 
 cleanUp
-echo "built" vidos_$FIRSTVID_NAME"_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$(date +%F).iso
+echo "built" $ISO_NAME
