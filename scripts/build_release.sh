@@ -39,6 +39,7 @@ done
 
 popd
 
+scripts/prepare_release_readme.sh
 cp -r vidos_x86_64/vobu.sh vidos_x86_64/test_vids LICENSE.md release_paperwork/README.md release_paperwork/*install.sh vidos_release_$NAME/
 
 cp LICENCE.md vidos_release_$NAME-source-and-licence-info/

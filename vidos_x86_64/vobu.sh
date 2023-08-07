@@ -37,7 +37,7 @@ exit 0
 
 print_help() {
 echo -e "\nVidOS build utility $VOBU_VER
-usage: vobu -d [directory] -v [video filename/dirname] -b [build style] -g [graphics drivers] -f [format] -r [remove codecs]
+usage: vobu -d [directory] -v [video filename/dirname] -b [build style] -g [graphics drivers] -f [format] -r [remove codecs] -l [bootloader/manager]
 options:\n-h help -- print this help text
 -d directory -- path to vidos components dir, Default paths: /tmp, /opt, ./
 -v video filename or directory -- path to video file or directory of video files, supported video codecs: [ "${SUPPORTED_VID_CODECS[@]}" ]

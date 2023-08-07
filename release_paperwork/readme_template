@@ -1,0 +1,92 @@
+# VidOS v2.1.0 "Otis"
+
+
+"What was your singing for?
+This music that rose to enamor
+The crowd with a clamor
+It could not ignore. . .
+Go — with your falsetto roar;
+Go — with your ready-made glamour.
+Why should you stay here to gurgle
+    and stammer 
+Of war?"
+
+From "To a War Poet",
+by Louis Untermeyer
+
+# About
+
+VidOS is a complete single purpose linux system for x86-64 that just plays videos.
+More precisely it is a bunch of pre-built components and a utility to assemble those components 
+into little linux distros that just boot and play your specified videos. No compiling required!
+
+# About this README
+
+This is a minimized README intended for distribution, for the complete README see: https://github.com/sen-h/VidOS
+
+# Changelog
+
+# v2.1.0
+* bugfixes
+* efi support (finally!)
+* vidos_components-v2.1.0
+* vobu.sh v1.1.0
+
+# v2.00
+* The second release (you can tell by the 2)
+* complete rewrite of probe.sh to vobu.sh
+* supports multiple videos in a playlist
+* supports multiple video formats (AV1, AVC(H.264) and WEBM)
+* supports multiple audio formats (AAC-LC and opus)
+* supports multiple options for loading videos (ram, disk or hybrid)
+
+# v1.00
+* Initial release!
+* Currently supports AV1 and opus in a matroska container
+* Supports x86_64 architecture
+* ISO9660 filesystem support
+
+# System Requirements
+
+* bash
+
+* ffprobe
+
+* ffmpeg
+
+* bunzip2
+
+* rpm2cpio
+
+* lz4
+
+* xorriso
+
+optional for efi support:
+
+* mtools
+
+you will also need wget, sed, cut and the 
+usual melange of unixy command line utils,
+but you prolly already have those (if you run ubuntu at least).
+
+under a debian-esque linux distro try something like:
+
+sudo apt-get install ffmpeg bzip2 rpm2cpio xorriso lz4 mtools
+
+# Installation instructions
+
+VidOS (comprising vobu.sh and the vidos_components dir)
+can be optionally installed by running: 
+
+./install.sh
+
+vobu.sh can also be directly used from the release dir.
+
+# Getting Started
+
+# Licences
+
+The various scripts, buildroot configs, configuration scripts and other config files belonging to the VidOS project are 0BSD licenced. 
+The compiled output of these however (which constitutes this release) is a linux distribution comprised of many packages with their own licences.
+These are contained in the legal.tar.gz archive for the given release at https://github.com/sen-h/VidOS/releases

@@ -54,10 +54,15 @@ you can use something like [etcher](https://etcher.balena.io/) or dd (if you are
 
 `dd if=vidos_funnycatvideo_av1_none_ram_20xx-xx-xx.iso of=/dev/sdX bs=4M && sync`
 
+or test it out in qemu:
+
+`qemu-system-x86_64 -cpu host --enable-kvm -m 500 -soundhw ac97 -vga cirrus vidos_funnycatvideo_av1_none_ram_20xx-xx-xx.iso`
+
+
 vobu.sh also supports a ton more options outlined below
  
 `VidOS build utility v1.xx`<br>
-`usage: vobu -d [directory] -v [filename/dirname] -b [build style] -g [graphics drivers] -f [format] -r [remove codecs]`<br>
+`usage: vobu -d [directory] -v [filename/dirname] -b [build style] -g [graphics drivers] -f [format] -r [remove codecs] -l [bootloader/manager]`<br>
 `options:`<br>
 `-h help -- print this help text`<br>
 `-d directory -- path to vidos components dir, Default paths: /tmp, /opt, ./`<br>
@@ -66,6 +71,7 @@ vobu.sh also supports a ton more options outlined below
 `-g graphics drivers -- binary blob graphics drivers, one or multiple of: [ amdgpu radeon i915 none all ] Default: none`<br>
 `-f format  -- specific video format to use, if omitted one will be autodetected. one of: [ av1 webm avc ]`<br>
 `-r remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc.`
+`-l bootloader/manager for firmware -- select bootloader depending on machine firmware. one of: [ efi bios both ] Default: bios`
 
 ## `-h` *help* -- print this help text
 
@@ -248,13 +254,47 @@ selects videos in AV1 format ( AV1 video and Opus audio in an mp4, webm or matro
 selects videos in WEBM format (VP8 or VP9 video and Opus audio in an mp4, webm or matroska container)
 
 ## `-r` *remove external codecs*
+
 removes/disables OpenH264 and fdk-aac codecs, this is required for licencing reasons.
 
+## `-l` *bootloader/manager for firmware*
+
+selects bootloader/boot manager the install in the final image, this is dependent on what type of firmware
+(colloqiually referred to as "The BIOS") is on the target machine.
+
+### `bios`
+
+installs isolinux and kernel package + initramfs on the disk for machines with traditional bios type firmware,
+images can be burnt to optical media or block devices.
+
+### `efi`
+
+installs systemd-boot and kernel package + initramfs in an ESP on the disk for machines with efi compliant firmware,
+images can be burnt to optical media or block devices.
+
+Secure boot is not supported and MUST be disabled.
+
+### `both`
+
+installs isolinux and kernel package + initramfs on the disk and also installs systemd-boot and kernel package + initramfs in an ESP.
+
+because the same stuff is duplicated in two places, the resulting final image will be bigger, sometimes by 2X.
+
+for instance, given an image built with the `ram` style and a 10MB video + 20MB kernel package, the final image will be 60MB.
+
+however, for an image built with `disk` style the video is not packed in the initramfs so it's not duplicated.
+therefore the final image will be 50MB ((20MB kernel package)*2 + 10MB video)
+
+It should however (theoretically at least) run on any pc regardless of the firmware implementation.
 
 # Bootloader
 
-isolinux is being used because I *hate* grub with a passion (also iso9660 filsystems FTW).
-eventually I would love to migrate to some sort of efi boot stub situation though.
+isolinux is being used for machines with traditional "bios" firmware,
+and systemd-boot is used for machines with efi compliant firmware.
+
+while the kernel images are built with the efi stub and as such could be executed
+directly by the efi firmware without a second stage,
+systemd-boot is needed in order to load the external initramfs from the ESP.
 
 # Kernel
 
@@ -319,11 +359,13 @@ This is to avoid an excessive kernel size and prevent it from being used for nef
 
 ~~* make isolinux quieter (or silent)~~ *implemented with optional patch*
 
-* figure out efi bootstub stuff *probably in next release*
+~~* figure out efi bootstub stuff ~~ *done*
 
 ~~* more codec support~~ *supports the 3 major web codecs*
 
 ~~* support for a playlist of mulitple videos instead of just one~~ *implemented*
+
+* looping video support *in process*
 
 * support ARM64/rpi4 *in process*
 
