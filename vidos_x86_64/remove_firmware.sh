@@ -1,2 +1,2 @@
-find $1 -type f -name libopenh264.so* -name libfdk-aac.so* -delete
-find $1 -type d -name firmware/* -delete
+rm -rf $1/usr/lib/libopenh264.so*
+rm -rf $1/usr/lib/libfdk-aac.so*
