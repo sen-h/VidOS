@@ -1,13 +1,11 @@
 --- vidos_base_config
 +++ vidos_webm_config
-@@ -3,0 +4 @@
-+BR2_PER_PACKAGE_DIRECTORIES=y
-@@ -7 +8 @@
+@@ -10 +10 @@
 -BR2_TARGET_GENERIC_HOSTNAME="VidOS_v2.00_base"
 +BR2_TARGET_GENERIC_HOSTNAME="VidOS_v2.00_webm"
-@@ -15,0 +17 @@
+@@ -18,0 +19 @@
 +BR2_ROOTFS_POST_SCRIPT_ARGS="webm"
-@@ -27,0 +30 @@
+@@ -30,0 +32 @@
 +BR2_PACKAGE_FFMPEG_EXTRACONF="--disable-everything --enable-libvpx --enable-decoder='vp8,vp9,opus' --enable-parser='vp8,vp9,opus' --enable-demuxer=matroska --enable-protocol=file --enable-outdev='fbdev,alsa,oss'"
-@@ -33,0 +37 @@
+@@ -36,0 +39 @@
 +BR2_PACKAGE_LIBVPX=y
