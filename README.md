@@ -138,14 +138,14 @@ if you call -v on a directory like so:
 vobu uses [find](https://linux.die.net/man/1/find) to crawl through all of its sub directories using the same rules
 
 so if all_the_cool_vids/ looked like this:
-
-`all_the_cool_vids/`<br>
-`├── sweet_skateboarding`<br>
-`│   └── cool_curbgrinds.mp4`<br>
-`├── rad_rimshots.webm`<br>
-`├── sick_kickflips.mkv`<br>
-`├── dope_dirtbikes.mkv`<br>
-
+```
+all_the_cool_vids/
+├── sweet_skateboarding
+│   └── cool_curbgrinds.mp4
+├── rad_rimshots.webm
+├── sick_kickflips.mkv
+├── dope_dirtbikes.mkv
+```
 vobu will find dope_dirtbikes.mkv first 
 even though it comes after cool_curbgrinds.mp4 because it is in the root dir.
 and because dope_dirtbikes.mkv is encoded in av1, vobu next finds
@@ -399,13 +399,13 @@ This is to avoid an excessive kernel size and prevent it from being used for nef
 
 ~~* make isolinux quieter (or silent)~~ *implemented with optional patch*
 
-~~* figure out efi bootstub stuff ~~ *done*
+~~* figure out efi bootstub stuff~~ *done*
 
 ~~* more codec support~~ *supports the 3 major web codecs*
 
 ~~* support for a playlist of mulitple videos instead of just one~~ *implemented*
 
-* looping video support *in process*
+~~* looping video support~~ *done*
 
 * support ARM64/rpi4 *in process*
 
