@@ -47,7 +47,7 @@ cp release_paperwork/LICENCE_README LICENCE.md vidos_release_$NAME-source-and-li
 
 wget https://cdn.kernel.org/pub/linux/kernel/v$KERNEL_LATEST_MAJOR.x/linux-$KERNEL_LATEST.tar.xz -O vidos_release_$NAME-source-and-licence-info/linux-$KERNEL_LATEST.tar.xz
 wget https://buildroot.org/downloads/$BUILDROOT_LATEST.tar.xz -O  vidos_release_$NAME-source-and-licence-info/$BUILDROOT_LATEST.tar.xz
-wget https://github.com/systemd/systemd-stable/releases/tag/$SYSTEMD_LATEST.tar.gz -O  vidos_release_$NAME-source-and-licence-info/systemd-stable-$SYSTEMD_LATEST.tar.gz
+wget https://github.com/systemd/systemd-stable/archive/refs/tags/$SYSTEMD_LATEST.tar.gz -O  vidos_release_$NAME-source-and-licence-info/systemd-stable-$SYSTEMD_LATEST.tar.gz
 find vidos_release_$NAME -type f -name "rootfs.cpio.lz4" -delete
 rm vidos_release_$NAME/vidos_components-$VIDOS_VER/vidos_iso9660/video/*
 rm -r vidos_release_$NAME/vidos_components-$VIDOS_VER/avc_external_lib
@@ -55,3 +55,6 @@ rm -r vidos_release_$NAME/vidos_components-$VIDOS_VER/avc_external_lib
 sed -i "/^GIT_COMMIT_HASH*/d" vidos_release_$NAME/vobu.sh
 sed -i "/^VOBU_VER=*/c\VOBU_VER=${VOBU_VER}" vidos_release_$NAME/vobu.sh
 sed -i "/^VIDOS_COMP_VER=*/c\VIDOS_COMP_VER=${VIDOS_VER}" vidos_release_$NAME/vobu.sh
+
+tar -I pigz -cf vidos_release_$NAME.tar.gz vidos_release_$NAME
+tar -I pigz -cf legal.tar.gz vidos_release_$NAME-source-and-licence-info
