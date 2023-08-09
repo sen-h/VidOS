@@ -49,7 +49,7 @@ options:\n-h help -- print this help text
 -r remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc.
 -l bootloader/manager for firmware -- select bootloader depending on machine firmware. one of: [ "${BOOTLOADER_ARRAY[@]}" ] Default: bios
 -m mpv options -- extra options to pass to mpv, see: https://mpv.io/manual/stable/#options
--p playback count -- a macro for '-m' that specifies how many times to play the video or video files: [ -1 to "inf" ] Default: 1
+-p playback count -- how many times to play the video or video files: [ -1 to "inf" ] Default: 1
 -o output iso name -- specify a name for the output iso, Defaults to: 'vidos_\$VIDEO_\$FORMAT_\$GRAPHICS_DRIVERS_\$BUILD_STYLE_\$BOOTLOADER_$(date +%F).iso'"
 
 exit $1

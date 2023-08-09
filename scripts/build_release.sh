@@ -9,8 +9,9 @@ SUPPORTED_FORMATS=("av1" "avc" "webm" "efi")
 SUPPORTED_STYLES=("disk" "ram" "hybrid")
 NAME=$VIDOS_VER
 
-if [ ! -z $1 ]; then NAME=$1; VIDOS_VER=$NAME; fi
-if [ ! -z $2 ]; then VOBU_VER=$2; fi
+if [ ! -z $1 ]; then NAME=$1; echo $NAME; fi
+if [ ! -z $2 ]; then VIDOS_VER=$2; echo $VIDOS_VER; fi
+if [ ! -z $3 ]; then VOBU_VER=$3; echo $VOBU_VER; fi
 
 mkdir -p vidos_release_$NAME/vidos_components-$VIDOS_VER
 mkdir -p vidos_release_$NAME-source-and-licence-info/
@@ -52,4 +53,4 @@ rm -r vidos_release_$NAME/vidos_components-$VIDOS_VER/avc_external_lib
 
 sed -i "/^GIT_COMMIT_HASH*/d" vidos_release_$NAME/vobu.sh
 sed -i "/^VOBU_VER=*/c\VOBU_VER=${VOBU_VER}" vidos_release_$NAME/vobu.sh
-sed -i "/^VIDOS_COMP_VER=*/c\VIDOS_COMP_VER=${NAME}" vidos_release_$NAME/vobu.sh
+sed -i "/^VIDOS_COMP_VER=*/c\VIDOS_COMP_VER=${VIDOS_VER}" vidos_release_$NAME/vobu.sh
