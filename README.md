@@ -299,7 +299,7 @@ It should be noted that all options specfied here are appended to the mpv argume
 
 so for something like:
 
-`vobu.sh -v myvideo.mkv -m --shuffle`
+`vobu.sh -v all_the_cool_vids/ -m --shuffle`
 
 the line in the S03Video script would be:
 
@@ -321,7 +321,7 @@ or
 
 the line in the S03Video script would be:
 
-`mpv -vo=drm --playlist=/path/to/playlist.txt --loop-playlist=1 --shuffle`
+`mpv -vo=drm --playlist=/path/to/playlist.txt --shuffle --loop-playlist=1`
 
 ## `-o` *output iso name*
 
