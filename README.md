@@ -313,11 +313,11 @@ this is done after what (if any) options were passed with `-m`
 
 So for something like:
 
-`vobu.sh -v myvideo.mkv -p 1 -m --shuffle`
+`vobu.sh -v all_the_cool_vids/ -p 1 -m --shuffle`
 
 or
 
-`vobu.sh -v myvideo.mkv -m --shuffle`
+`vobu.sh -v all_the_cool_vids/ -m --shuffle`
 
 the line in the S03Video script would be:
 
