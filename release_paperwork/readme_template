@@ -1,4 +1,4 @@
-# VidOS v2.1.0 "Otis"
+# VidOS v2.5.0 "Otis"
 
 
 "What was your singing for?
@@ -26,11 +26,15 @@ This is a minimized README intended for distribution, for the complete README se
 
 # Changelog
 
-# v2.1.0
+# v2.5.0
 * bugfixes
 * efi support (finally!)
+* videos can loop now (exciting!)
+* pass arbitrary mpv commands (make it do your bidding!)
+* change the output iso filename (to whatever your heart desires!) 
 * vidos_components-v2.1.0
-* vobu.sh v1.1.0
+* vobu.sh v1.4.0
+* linux kernel 6.1.44
 
 # v2.00
 * The second release (you can tell by the 2)
