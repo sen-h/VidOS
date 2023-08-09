@@ -1,6 +1,9 @@
 Source and licencing info for the third party packages constituting VidOS
 and its components have been collected here either manually or using buildroot's
 native "make legal-info" target.
+systemd-boot (formerly gummiboot) is utilized for efi support and is part of the 
+larger systemd project, but due to the nature VidOS build infrastucture the source 
+was collected manually.
 Source and licencing info for the toolchain was impractical to collect
 here, but is availaible at: https://toolchains.bootlin.com/.
 Please enjoy.

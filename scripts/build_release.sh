@@ -3,6 +3,7 @@ GIT_COMMIT_HASH=$(git log -1 --format=%h)
 VIDOS_VER="v2.0.0-"$GIT_COMMIT_HASH
 VOBU_VER="v1.0.0-"$GIT_COMMIT_HASH
 BUILDROOT_LATEST="buildroot-2023.05.1"
+SYSTEMD_LATEST="v252.4"
 KERNEL_LATEST="6.1.44"
 KERNEL_LATEST_MAJOR=$(echo $KERNEL_LATEST | head -c 1)
 SUPPORTED_FORMATS=("av1" "avc" "webm" "efi")
@@ -42,11 +43,11 @@ popd
 
 scripts/prepare_release_readme.sh
 cp -r vidos_x86_64/vobu.sh vidos_x86_64/test_vids LICENSE.md release_paperwork/README.md release_paperwork/*install.sh vidos_release_$NAME/
-
-cp LICENCE.md vidos_release_$NAME-source-and-licence-info/
+cp release_paperwork/LICENCE_README LICENCE.md vidos_release_$NAME-source-and-licence-info/
 
 wget https://cdn.kernel.org/pub/linux/kernel/v$KERNEL_LATEST_MAJOR.x/linux-$KERNEL_LATEST.tar.xz -O vidos_release_$NAME-source-and-licence-info/linux-$KERNEL_LATEST.tar.xz
 wget https://buildroot.org/downloads/$BUILDROOT_LATEST.tar.xz -O  vidos_release_$NAME-source-and-licence-info/$BUILDROOT_LATEST.tar.xz
+wget https://github.com/systemd/systemd-stable/releases/tag/$SYSTEMD_LATEST.tar.gz -O  vidos_release_$NAME-source-and-licence-info/systemd-stable-$SYSTEMD_LATEST.tar.gz
 find vidos_release_$NAME -type f -name "rootfs.cpio.lz4" -delete
 rm vidos_release_$NAME/vidos_components-$VIDOS_VER/vidos_iso9660/video/*
 rm -r vidos_release_$NAME/vidos_components-$VIDOS_VER/avc_external_lib
