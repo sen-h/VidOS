@@ -72,6 +72,9 @@ vobu.sh also supports a ton more options outlined below
 `-f format  -- specific video format to use, if omitted one will be autodetected. one of: [ av1 webm avc ]`<br>
 `-r remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc.`
 `-l bootloader/manager for firmware -- select bootloader depending on machine firmware. one of: [ efi bios both ] Default: bios`
+`-m mpv options -- extra options to pass to mpv, see: https://mpv.io/manual/stable/#options`
+`-p playback count -- a macro for '-m' that specifies how many times to play the video or video files: [ -1 to inf ] Default: 1`
+`-o output iso name -- specify a name for the output iso, Defaults to: 'vidos_$VIDEO_$FORMAT_$GRAPHICS_DRIVERS_$BUILD_STYLE_$BOOTLOADER_2023-08-09.iso'`
 
 ## `-h` *help* -- print this help text
 
@@ -286,6 +289,42 @@ however, for an image built with `disk` style the video is not packed in the ini
 therefore the final image will be 50MB ((20MB kernel package)*2 + 10MB video)
 
 It should however (theoretically at least) run on any pc regardless of the firmware implementation.
+
+## `-m` *mpv options* -- extra options for mpv
+
+passes additional options to mpv, see the mpv docs for info: https://mpv.io/manual/stable/#options
+
+It should be noted that all options specfied here are appended to the mpv arguments in the particular S03Video* script
+
+so for something like:
+
+`vobu.sh -v myvideo.mkv -m --shuffle`
+
+the line in the S03Video script would be:
+
+`mpv -vo=drm --playlist=/path/to/playlist.txt --shuffle`
+
+## `-p` *playback count*
+
+this is *essentially* a macro for the `-m` option, it appends the `--loop-playlist` option with the passed value, defaulting to `1`
+
+this is done after what (if any) options were passed with `-m`
+
+So for something like:
+
+`vobu.sh -v myvideo.mkv -p 1 -m --shuffle`
+
+or
+
+`vobu.sh -v myvideo.mkv -m --shuffle`
+
+the line in the S03Video script would be:
+
+`mpv -vo=drm --playlist=/path/to/playlist.txt --loop-playlist=1 --shuffle`
+
+## `-o` *output iso name*
+
+specify the output filename/path, the `.iso` suffix is automagically appended
 
 # Bootloader
 
