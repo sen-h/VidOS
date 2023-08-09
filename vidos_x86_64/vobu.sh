@@ -21,6 +21,7 @@ ARG_VALID=0
 STYLE_VALID=1
 FIRMWARE_VALID=1
 BOOTLOADER_VALID=1
+PLAYBACK_COUNT_VALID=1
 FORMAT_SPECIFIED=1
 START_DIR=$PWD
 
@@ -38,6 +39,7 @@ exit 0
 print_help() {
 echo -e "\nVidOS build utility $VOBU_VER
 usage: vobu -d [directory] -v [video filename/dirname] -b [build style] -g [graphics drivers] -f [format] -r [remove codecs] -l [bootloader/manager]
+-m [mpv options] -p [playback options] -o [output iso name]
 options:\n-h help -- print this help text
 -d directory -- path to vidos components dir, Default paths: /tmp, /opt, ./
 -v video filename or directory -- path to video file or directory of video files, supported video codecs: [ "${SUPPORTED_VID_CODECS[@]}" ]
@@ -45,7 +47,11 @@ options:\n-h help -- print this help text
 -g graphics drivers -- binary blob graphics drivers, one or multiple of: [ "${FIRMWARE_ARRAY[@]}" ] Default: none
 -f format  -- specific video format to use, if omitted one will be autodetected. one of: [ "${SUPPORTED_VID_FORMATS[@]}" ]
 -r remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc.
--l bootloader/manager for firmware -- select bootloader depending on machine firmware. one of: [ "${BOOTLOADER_ARRAY[@]}" ] Default: bios"
+-l bootloader/manager for firmware -- select bootloader depending on machine firmware. one of: [ "${BOOTLOADER_ARRAY[@]}" ] Default: bios
+-m mpv options -- extra options to pass to mpv, see: https://mpv.io/manual/stable/#options
+-p playback count -- a macro for '-m' that specifies how many times to play the video or video files: [ -1 to "inf" ] Default: 1
+-o output iso name -- specify a name for the output iso, Defaults to: 'vidos_\$VIDEO_\$FORMAT_\$GRAPHICS_DRIVERS_\$BUILD_STYLE_\$BOOTLOADER_$(date +%F).iso'"
+
 exit $1
 }
 
@@ -139,7 +145,7 @@ checkArg() {
 	fi
 }
 
-while getopts ":rhd:v:b:g:f:l:" opt; do
+while getopts ":rhd:v:b:g:f:l:m:p:o:" opt; do
 	case "$opt" in
 		r)
 			remove_ex_libs
@@ -172,6 +178,15 @@ while getopts ":rhd:v:b:g:f:l:" opt; do
 		l)
 			BOOTLOADER="$OPTARG";
 		;;
+		m)
+			MPV_OPTS="$OPTARG";
+		;;
+		p)
+			PLAYBACK_COUNT="$OPTARG";
+		;;
+		o)
+			ISO_NAME="$OPTARG";
+		;;
 	esac
 done
 
@@ -187,6 +202,9 @@ fi
 if [ -z $STYLE ]; then STYLE="ram"; fi
 if [ -z $FIRMWARE ]; then FIRMWARE="none"; fi
 if [ -z $BOOTLOADER ]; then BOOTLOADER="bios"; fi
+if [ -z $PLAYBACK_COUNT ]; then PLAYBACK_COUNT="1"; fi
+MPV_OPTS+=" --loop-playlist="$PLAYBACK_COUNT
+
 FIRMWARE_SELECTION+=($FIRMWARE)
 
 checkPaths() {
@@ -209,6 +227,7 @@ checkOpts() {
 checkOpts $STYLE "build style" "${STYLE_ARRAY[*]}"
 checkOpts $FIRMWARE "graphics drivers" "${FIRMWARE_ARRAY[*]}"
 checkOpts $BOOTLOADER "bootloader" "${BOOTLOADER_ARRAY[*]}"
+checkOpts $PLAYBACK_COUNT "playback count" "-1 - inf"
 checkPaths $DIR "directory"
 checkPaths "$VIDEO" "video or video dir"
 
@@ -290,6 +309,13 @@ done
 
 checkArg $FIRMWARE_VALID "graphics drivers" $i "option" "${FIRMWARE_ARRAY[*]}"
 
+if [ $PLAYBACK_COUNT = "inf" ] || [ $PLAYBACK_COUNT -eq $PLAYBACK_COUNT ]; then
+	PLAYBACK_COUNT_VALID=0
+fi
+echo "mpv options:" $MPV_OPTS
+checkArg $PLAYBACK_COUNT_VALID "playback count" $PLAYBACK_COUNT "value" "-1 - inf"
+sed -i "s/playlist.txt/playlist.txt $MPV_OPTS/"  $DIR/initramfs_overlay/etc/init.d/S03Video
+
 if [ $VIDEO_DIR ]; then
 	FIRST_VID=$(find $VIDEO_DIR -type f | grep -m1 $SUFFIX_REGEX)
 	pickCodec "$FIRST_VID"
@@ -302,6 +328,7 @@ else
 		checkVid "$SELECTED_VID" $VID_FORMAT ${!VID_PATH} ${!SED_ARG} $STYLE $ram_VID_PATH
 	done
 fi
+
 
 FIRSTVID_NAME=$(echo $FIRST_VID | rev | cut -d'/' -f1 | cut -d'.' -f2 | rev )
 
@@ -356,11 +383,13 @@ case $BOOTLOADER in
 	;;
 esac
 
-ISO_NAME="$START_DIR/vidos_"$FIRSTVID_NAME""_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$BOOTLOADER"_"$(date +%F).iso"
+if [ -z $ISO_NAME ]; then
+	ISO_NAME="vidos_"$FIRSTVID_NAME""_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$BOOTLOADER"_"$(date +%F)"
+fi
 
-both_XORRISO_CMD="xorriso -as mkisofs -o $ISO_NAME -isohybrid-mbr isohdpfx.bin -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4  -boot-info-table -eltorito-alt-boot -e efi/efi.img -no-emul-boot -append_partition 2 0xef vidos_iso9660/efi/efi.img vidos_iso9660"
-efi_XORRISO_CMD="xorriso -as mkisofs -o $ISO_NAME -e efi/efi.img -no-emul-boot -append_partition 2 0xef vidos_iso9660/efi/efi.img vidos_iso9660"
-bios_XORRISO_CMD="xorriso -as mkisofs -o $ISO_NAME -isohybrid-mbr isohdpfx.bin -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4  -boot-info-table vidos_iso9660"
+both_XORRISO_CMD="xorriso -as mkisofs -o $START_DIR/$ISO_NAME.iso -isohybrid-mbr isohdpfx.bin -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4  -boot-info-table -eltorito-alt-boot -e efi/efi.img -no-emul-boot -append_partition 2 0xef vidos_iso9660/efi/efi.img vidos_iso9660"
+efi_XORRISO_CMD="xorriso -as mkisofs -o $START_DIR/$ISO_NAME.iso -e efi/efi.img -no-emul-boot -append_partition 2 0xef vidos_iso9660/efi/efi.img vidos_iso9660"
+bios_XORRISO_CMD="xorriso -as mkisofs -o $START_DIR/$ISO_NAME.iso -isohybrid-mbr isohdpfx.bin -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4  -boot-info-table vidos_iso9660"
 
 ${!XORRISO_CMD}
 
@@ -377,4 +406,4 @@ cleanUp() {
 }
 
 cleanUp
-echo "built" $ISO_NAME
+echo "built" $START_DIR/$ISO_NAME.iso
