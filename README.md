@@ -60,22 +60,23 @@ or test it out in qemu:
 
 
 vobu.sh also supports a ton more options outlined below
- 
-`VidOS build utility v1.xx`<br>
-`usage: vobu -d [directory] -v [filename/dirname] -b [build style] -g [graphics drivers] -f [format] -r [remove codecs] -l [bootloader/manager]`<br>
-`options:`<br>
-`-h help -- print this help text`<br>
-`-d directory -- path to vidos components dir, Default paths: /tmp, /opt, ./`<br>
-`-v video filename or directory -- path to video file or directory of video files, supported video codecs: [ av1 vp8 vp9 h264 ]`<br>
-`-b build style -- style of output build, one of: [ disk ram hybrid ] Default: ram`<br>
-`-g graphics drivers -- binary blob graphics drivers, one or multiple of: [ amdgpu radeon i915 none all ] Default: none`<br>
-`-f format  -- specific video format to use, if omitted one will be autodetected. one of: [ av1 webm avc ]`<br>
-`-r remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc.`
-`-l bootloader/manager for firmware -- select bootloader depending on machine firmware. one of: [ efi bios both ] Default: bios`
-`-m mpv options -- extra options to pass to mpv, see: https://mpv.io/manual/stable/#options`
-`-p playback count -- how many times to play the video or video files: [ -1 to inf ] Default: 1`
-`-o output iso name -- specify a name for the output iso, Defaults to: 'vidos_$VIDEO_$FORMAT_$GRAPHICS_DRIVERS_$BUILD_STYLE_$BOOTLOADER_2023-08-09.iso'`
-
+``` 
+VidOS build utility v1.4.x
+usage: vobu -d [directory] -v [filename/dirname] -b [build style] -g [graphics drivers] -f [format] -r [remove codecs] -l [bootloader/manager]
+-m [mpv options] -p [playback options] -o [output iso name]
+options:
+-h help -- print this help text
+-d directory -- path to vidos components dir, Default paths: /tmp, /opt, ./
+-v video filename or directory -- path to video file or directory of video files, supported video codecs: [ av1 vp8 vp9 h264 ]
+-b build style -- style of output build, one of: [ disk ram hybrid ] Default: ram
+-g graphics drivers -- binary blob graphics drivers, one or multiple of: [ amdgpu radeon i915 none all ] Default: none
+-f format  -- specific video format to use, if omitted one will be autodetected. one of: [ av1 webm avc ]
+-r remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc.
+-l bootloader/manager for firmware -- select bootloader depending on machine firmware. one of: [ efi bios both ] Default: bios
+-m mpv options -- extra options to pass to mpv, see: https://mpv.io/manual/stable/#options
+-p playback count -- how many times to play the video or video files: [ -1 to inf ] Default: 1
+-o output iso name -- specify a name for the output iso, Defaults to: 'vidos_$VIDEO_$FORMAT_$GRAPHICS_DRIVERS_$BUILD_STYLE_$BOOTLOADER_YYYY-MM-DD.iso'
+```
 ## `-h` *help* -- print this help text
 
 prints help text
