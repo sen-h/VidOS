@@ -163,7 +163,7 @@ or:
 
 vobu will only find rad_rimshots.webm
 
-## -b *build style* -- where/how the video(s) are stored.
+## `-b` *build style* -- where/how the video(s) are stored.
 
 the style of build vidos will output, different styles mean different
 behaviours for where the videos are stored in the final image.
@@ -214,7 +214,7 @@ the first chunk the disk has been mounted and the remaining chunks are
 available.
 YMMV.
 
-## -g *firmware* -- graphics drivers
+## `-g` *firmware* -- graphics drivers
 
 this selects linux-firmware binary graphics driver directory to package in the initramfs.
 
