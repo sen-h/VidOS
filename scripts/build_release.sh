@@ -3,7 +3,7 @@ GIT_COMMIT_HASH=$(git log -1 --format=%h)
 VIDOS_VER="v2.0.0-"$GIT_COMMIT_HASH
 VOBU_VER="v1.0.0-"$GIT_COMMIT_HASH
 BUILDROOT_LATEST="buildroot-2023.05.1"
-KERNEL_LATEST="5.4.249"
+KERNEL_LATEST="6.1.44"
 KERNEL_LATEST_MAJOR=$(echo $KERNEL_LATEST | head -c 1)
 SUPPORTED_FORMATS=("av1" "avc" "webm" "efi")
 SUPPORTED_STYLES=("disk" "ram" "hybrid")
