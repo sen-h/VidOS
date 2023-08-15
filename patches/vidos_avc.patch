@@ -1,0 +1,21 @@
+--- vidos_base_config
++++ vidos_avc_config
+@@ -3 +2,0 @@
+-BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_MUSL_STABLE=y
+@@ -5,2 +4 @@
+-BR2_CCACHE_DIR="$(HOME)/.buildroot-ccache-musl"
+-BR2_PER_PACKAGE_DIRECTORIES=y
++BR2_CCACHE_DIR="$(HOME)/.buildroot-ccache-glibc"
+@@ -10 +8 @@
+-BR2_TARGET_GENERIC_HOSTNAME="VidOS_v2.00_base"
++BR2_TARGET_GENERIC_HOSTNAME="VidOS_v2.00_avc"
+@@ -16,0 +15 @@
++BR2_ROOTFS_POST_BUILD_SCRIPT="board/vidos_x86_64/remove_firmware.sh"
+@@ -18,0 +18 @@
++BR2_ROOTFS_POST_SCRIPT_ARGS="avc"
+@@ -30,0 +31 @@
++BR2_PACKAGE_FFMPEG_EXTRACONF="--disable-everything --enable-libopenh264 --enable-libfdk_aac --enable-decoder='libopenh264,libfdk_aac' --enable-parser='h264,aac' --enable-demuxer='matroska,mov' --enable-protocol=file --enable-outdev='fbdev,alsa,oss' --enable-filter=aresample"
+@@ -31,0 +33 @@
++BR2_PACKAGE_FDK_AAC=y
+@@ -36,0 +39 @@
++BR2_PACKAGE_LIBOPENH264=y

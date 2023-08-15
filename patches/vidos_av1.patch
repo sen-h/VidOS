@@ -1,0 +1,11 @@
+--- vidos_base_config
++++ vidos_av1_config
+@@ -10 +10 @@
+-BR2_TARGET_GENERIC_HOSTNAME="VidOS_v2.00_base"
++BR2_TARGET_GENERIC_HOSTNAME="VidOS_v2.00_av1"
+@@ -18,0 +19 @@
++BR2_ROOTFS_POST_SCRIPT_ARGS="av1"
+@@ -30,0 +32 @@
++BR2_PACKAGE_FFMPEG_EXTRACONF="--disable-everything --enable-libdav1d --enable-decoder='libdav1d,opus' --enable-parser='av1,opus' --enable-demuxer=matroska,mov --enable-protocol='file' --enable-outdev='fbdev,alsa,oss'"
+@@ -36,0 +39 @@
++BR2_PACKAGE_DAV1D=y

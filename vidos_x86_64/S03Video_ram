@@ -1,0 +1,18 @@
+#!/bin/ash
+case "$1" in
+  start)
+	export LD_LIBRARY_PATH=/usr/lib
+        amixer sset Master unmute 0.0dB
+        mpv -vo=drm --playlist=/opt/playlist.txt
+	poweroff
+    ;;
+  stop)
+    exit 1
+    ;;
+  *)
+    exit 1
+    ;;
+esac
+
+exit 0
+

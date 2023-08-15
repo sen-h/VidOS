@@ -1,0 +1,9 @@
+x86_64-buildroot-linux-musl_sdk-buildroot/
+x86_64-buildroot-linux-gnu_sdk-buildroot/
+buildroot-20*
+vidos_release_*/
+vidos_avc_config
+vidos_av1_config
+vidos_webm_config
+sdk_config
+release_paperwork/README.md
