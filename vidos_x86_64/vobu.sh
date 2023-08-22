@@ -319,13 +319,13 @@ sed -i "s/playlist.txt/playlist.txt $MPV_OPTS/"  $DIR/initramfs_overlay/etc/init
 if [ $VIDEO_DIR ]; then
 	FIRST_VID=$(find $VIDEO_DIR -type f | grep -m1 $SUFFIX_REGEX)
 	pickCodec "$FIRST_VID"
-	find $VIDEO_DIR -type f -iregex $SUFFIX_REGEX -exec bash -c 'checkVid "$0" "$1" "$2" "$3" "$4" "$5"' '{}' $VID_FORMAT ${!VID_PATH} ${!SED_ARG} $STYLE $ram_VID_PATH \;
+	find $VIDEO_DIR -type f -iregex $SUFFIX_REGEX -exec bash -c 'checkVid "$0" "$1" "$2" "$3" "$4" "$5"' '{}' $VID_FORMAT ${!VID_PATH} ${!SED_ARG} $STYLE ${!VID_PATH} \;
 else
 	FIRST_VID="${VIDEO_SELECTION[0]}"
 	pickCodec "$FIRST_VID"
 	echo "format:" $VID_FORMAT
 	for SELECTED_VID in "${VIDEO_SELECTION[@]}"; do
-		checkVid "$SELECTED_VID" $VID_FORMAT ${!VID_PATH} ${!SED_ARG} $STYLE $ram_VID_PATH
+		checkVid "$SELECTED_VID" $VID_FORMAT ${!VID_PATH} ${!SED_ARG} $STYLE ${!VID_PATH}
 	done
 fi
 
@@ -333,21 +333,22 @@ fi
 FIRSTVID_NAME=$(echo $FIRST_VID | rev | cut -d'/' -f1 | cut -d'.' -f2 | rev )
 
 if [ $STYLE = "hybrid" ]; then
+	mv $disk_VID_PATH/playlist.txt $ram_VID_PATH/playlist.txt
 	read -r FIRST_VID_PATH<$ram_VID_PATH/playlist.txt
 	FIRSTVID_NAME=$(echo $FIRST_VID_PATH | rev | cut -d'/' -f1 | cut -d'.' -f2 | rev )
 	FIRSTVID_FULLNAME=$(echo $FIRST_VID_PATH | rev | cut -d'/' -f1 | rev )
 	echo "splitting" $FIRSTVID_FULLNAME "into segments"
-	ffmpeg -v quiet -i $disk_VID_PATH/$FIRSTVID_FULLNAME -codec copy -map 0 -f segment -segment_list_type m3u8 \
+	ffmpeg -v quiet -i $disk_VID_PATH/"$FIRSTVID_FULLNAME" -codec copy -map 0 -f segment -segment_list_type m3u8 \
 	-segment_list $ram_VID_PATH/playlist.m3u8 -segment_list_entry_prefix /media/video/ \
 	-segment_list_flags +cache -segment_time 10 \
-	$disk_VID_PATH/$FIRSTVID_NAME"_segment"%03d.mkv
+	$disk_VID_PATH/"$FIRSTVID_NAME""_segment"%03d.mkv
 	echo "updating playlist"
 	sed -i '7d' $ram_VID_PATH/playlist.m3u8
 	sed -i "6 a /opt/$FIRSTVID_NAME""_segment000.mkv" $ram_VID_PATH/playlist.m3u8
 	echo "moving first segment into initramfs"
 	mv  $disk_VID_PATH/"$FIRSTVID_NAME"_segment000.mkv $ram_VID_PATH
         sed -i '1s/.*/\/opt\/playlist.m3u8/' $ram_VID_PATH/playlist.txt
-	rm $disk_VID_PATH/$FIRSTVID_FULLNAME
+	rm $disk_VID_PATH/"$FIRSTVID_FULLNAME"
 fi
 
 cp $KERNEL_PATH/bzImage $DIR/vidos_iso9660/kernel
