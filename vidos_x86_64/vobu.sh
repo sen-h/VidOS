@@ -13,7 +13,7 @@ FORMAT_ARRAY=([av1]="av1" [vp8]="webm" [vp9]="webm" [h264]="avc")
 SUPPORTED_VID_CODECS=( "av1" "vp8" "vp9" "h264")
 SUPPORTED_VID_FORMATS=( "av1" "webm" "avc")
 STYLE_ARRAY=( "disk" "ram" "hybrid" )
-FIRMWARE_ARRAY=( "amdgpu" "radeon" "i915" "none" "all")
+FIRMWARE_ARRAY=( "amdgpu" "radeon" "i915" "none" "all" "(or specific firmware/*.bin)")
 BOOTLOADER_ARRAY=( "efi" "bios" "both")
 SUFFIX_REGEX=".*/*.webm$\|.*/*.mp4$\|.*/*.mkv$"
 VID_SUPPORTED=1
@@ -44,7 +44,7 @@ options:\n-h help -- print this help text
 -d directory -- path to vidos components dir, Default paths: /tmp, /opt, ./
 -v video filename or directory -- path to video file or directory of video files, supported video codecs: [ "${SUPPORTED_VID_CODECS[@]}" ]
 -b build style -- style of output build, one of: [ "${STYLE_ARRAY[@]}" ] Default: ram
--g graphics drivers -- binary blob graphics drivers, one or multiple of: [ "${FIRMWARE_ARRAY[@]}" ] Default: none
+-g graphics drivers -- binary blob graphics drivers, one or multiple of: [ "${FIRMWARE_ARRAY[@]}" ] or path to *.bin. Default: none
 -f format  -- specific video format to use, if omitted one will be autodetected. one of: [ "${SUPPORTED_VID_FORMATS[@]}" ]
 -r remove external codecs -- removes/disables OpenH264 and fdk-aac codecs, OpenH264 Video Codec provided by Cisco Systems, Inc.
 -l bootloader/manager for firmware -- select bootloader depending on machine firmware. one of: [ "${BOOTLOADER_ARRAY[@]}" ] Default: bios
@@ -170,6 +170,7 @@ while getopts ":rhd:v:b:g:f:l:m:p:o:" opt; do
 		;;
 		g)
 			FIRMWARE="$OPTARG";
+			FIRMWARE_SELECTION+=($FIRMWARE)
 		;;
 		f)
 			SELECTED_FORMAT="$OPTARG"
@@ -204,8 +205,6 @@ if [ -z $FIRMWARE ]; then FIRMWARE="none"; fi
 if [ -z $BOOTLOADER ]; then BOOTLOADER="bios"; fi
 if [ -z $PLAYBACK_COUNT ]; then PLAYBACK_COUNT="1"; fi
 MPV_OPTS+=" --loop-playlist="$PLAYBACK_COUNT
-
-FIRMWARE_SELECTION+=($FIRMWARE)
 
 checkPaths() {
 	if [ "$2" == "$3"  ]; then
@@ -287,27 +286,49 @@ done
 
 checkArg $STYLE_VALID "style" $STYLE "option" "${STYLE_ARRAY[*]}"
 
-for i in "${FIRMWARE_SELECTION[@]}"; do
-	for FIRMWARE_OPTION in "${FIRMWARE_ARRAY[@]}"
-	do
-	        if [ $i = $FIRMWARE_OPTION ]; then
-			FIRMWARE_VALID=0
-			FIRMWARES=$i
-			if [ -h $DIR/firmware/$i ]; then FIRMWARES=$i/*; fi
-			if [ $FIRMWARES != "none" ] && [ ! -e $DIR/firmware/$FIRMWARES ]; then
-				echo "downloading linux-firmware-$FIRMWARE_VERSION package"
-				if [ -e linux-firmware-$FIRMWARE_VERSION.tar.gz ]; then rm linux-firmware-$FIRMWARE_VERSION.tar.gz; fi;
-				wget https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-$FIRMWARE_VERSION.tar.gz
-				tar -xf linux-firmware-$FIRMWARE_VERSION.tar.gz linux-firmware-$FIRMWARE_VERSION/amdgpu linux-firmware-$FIRMWARE_VERSION/radeon linux-firmware-$FIRMWARE_VERSION/i915
-				mv linux-firmware-$FIRMWARE_VERSION/* $DIR/firmware/
-				rm -r linux-firmware-$FIRMWARE_VERSION linux-firmware-$FIRMWARE_VERSION.tar.gz
+for FIRM in "${FIRMWARE_SELECTION[@]}"
+do
+	if [ $FIRM != "none" ] && [ ! -e ~/.vidos_firmware/firmware ]; then
+		echo "downloading linux-firmware-$FIRMWARE_VERSION package"
+		mkdir  -p ~/.vidos_firmware/firmware
+		if [ -e linux-firmware-$FIRMWARE_VERSION.tar.gz ]; then rm linux-firmware-$FIRMWARE_VERSION.tar.gz; fi;
+		pushd ~/.vidos_firmware
+		wget https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-$FIRMWARE_VERSION.tar.gz
+		tar -xf linux-firmware-$FIRMWARE_VERSION.tar.gz linux-firmware-$FIRMWARE_VERSION/amdgpu linux-firmware-$FIRMWARE_VERSION/radeon linux-firmware-$FIRMWARE_VERSION/i915
+		mv linux-firmware-$FIRMWARE_VERSION/* ~/.vidos_firmware/firmware/
+		popd
+		rm ~/.vidos_firmware/linux-firmware-$FIRMWARE_VERSION.tar.gz
+	fi
+	case "$FIRM" in
+		all)
+			cp --verbose -r ~/.vidos_firmware/firmware $DIR/initramfs_overlay/lib/
+		;;
+		none)
+			#do nothing
+		;;
+		*)
+			if [ $(echo -n $FIRM | tail -c 1) = "/" ]; then
+				FIRM=$(echo $FIRM | rev | sed '0,/\//{s/\///}' | rev)
 			fi
-			cp -r $DIR/firmware/$FIRMWARES -t $DIR/initramfs_overlay/lib/firmware/
-	        fi
-	done
+			if [ $(echo -n $FIRM | tail -c 3 ) = "bin" ]; then
+				if [ $(echo $FIRM | cut -d "/" -f1) != $FIRM ]; then
+					FIRM_DIR=$(echo $FIRM | cut -d "/" -f1)
+					FIRM_BASENAME=$(echo $FIRM | cut -d "/" -f2)
+					FIRM_LOC=$DIR/initramfs_overlay/lib/firmware/$FIRM_DIR
+					mkdir -p $FIRM_LOC
+				fi
+			elif [ -d ~/.vidos_firmware/firmware/$FIRM ]; then
+				FIRM_LOC=$DIR/initramfs_overlay/lib/firmware/
+				FIRM_DIR="";
+				FIRM_BASENAME=$FIRM
+			fi
+			find ~/.vidos_firmware/firmware/ -name $FIRM_BASENAME | grep -q "."
+			FIRMWARE_VALID=$?
+			checkArg $FIRMWARE_VALID "graphics drivers" $FIRM "option" "${FIRMWARE_ARRAY[*]}"
+			find ~/.vidos_firmware/firmware/$FIRM_DIR -name $FIRM_BASENAME -exec cp --verbose -r {}  $FIRM_LOC \; -quit
+		;;
+	esac
 done
-
-checkArg $FIRMWARE_VALID "graphics drivers" $i "option" "${FIRMWARE_ARRAY[*]}"
 
 if [ $PLAYBACK_COUNT = "inf" ] || [ $PLAYBACK_COUNT -eq $PLAYBACK_COUNT ]; then
 	PLAYBACK_COUNT_VALID=0
@@ -385,7 +406,7 @@ case $BOOTLOADER in
 esac
 
 if [ -z $ISO_NAME ]; then
-	ISO_NAME="vidos_"$FIRSTVID_NAME""_"$VID_FORMAT"_""$(IFS=_ ; echo "${FIRMWARE_SELECTION[*]}")""_"$STYLE"_"$BOOTLOADER"_"$(date +%F)"
+	ISO_NAME="vidos"_"$FIRSTVID_NAME"_"$VID_FORMAT"_"$FIRM_DIR"_"$STYLE"_"$BOOTLOADER"_"$(date +%F)"
 fi
 
 both_XORRISO_CMD="xorriso -as mkisofs -o $START_DIR/$ISO_NAME.iso -isohybrid-mbr isohdpfx.bin -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4  -boot-info-table -eltorito-alt-boot -e efi/efi.img -no-emul-boot -append_partition 2 0xef vidos_iso9660/efi/efi.img vidos_iso9660"
