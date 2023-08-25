@@ -24,6 +24,9 @@ BOOTLOADER_VALID=1
 PLAYBACK_COUNT_VALID=1
 FORMAT_SPECIFIED=1
 START_DIR=$PWD
+GZIP="gzip"
+command -v pigz | grep -q .
+if [ $? -eq 0 ]; then GZIP="pigz"; fi
 
 remove_ex_libs() {
         DIR=$(find /tmp ! -readable -prune -o -name vidos_components-$VIDOS_COMP_VER-* -print)
@@ -294,7 +297,7 @@ do
 		if [ -e linux-firmware-$FIRMWARE_VERSION.tar.gz ]; then rm linux-firmware-$FIRMWARE_VERSION.tar.gz; fi;
 		pushd ~/.vidos_firmware
 		wget https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-$FIRMWARE_VERSION.tar.gz
-		tar -xf linux-firmware-$FIRMWARE_VERSION.tar.gz linux-firmware-$FIRMWARE_VERSION/amdgpu linux-firmware-$FIRMWARE_VERSION/radeon linux-firmware-$FIRMWARE_VERSION/i915
+		tar -I $GZIP -xf linux-firmware-$FIRMWARE_VERSION.tar.gz linux-firmware-$FIRMWARE_VERSION/amdgpu linux-firmware-$FIRMWARE_VERSION/radeon linux-firmware-$FIRMWARE_VERSION/i915
 		mv linux-firmware-$FIRMWARE_VERSION/* ~/.vidos_firmware/firmware/
 		popd
 		rm ~/.vidos_firmware/linux-firmware-$FIRMWARE_VERSION.tar.gz
