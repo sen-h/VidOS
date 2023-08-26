@@ -304,7 +304,7 @@ do
 	fi
 	case "$FIRM" in
 		all)
-			cp --verbose -r ~/.vidos_firmware/firmware $DIR/initramfs_overlay/lib/
+			cp -r ~/.vidos_firmware/firmware $DIR/initramfs_overlay/lib/
 		;;
 		none)
 			#do nothing
@@ -328,7 +328,7 @@ do
 			find ~/.vidos_firmware/firmware/ -name $FIRM_BASENAME | grep -q "."
 			FIRMWARE_VALID=$?
 			checkArg $FIRMWARE_VALID "graphics drivers" $FIRM "option" "${FIRMWARE_ARRAY[*]}"
-			find ~/.vidos_firmware/firmware/$FIRM_DIR -name $FIRM_BASENAME -exec cp --verbose -r {}  $FIRM_LOC \; -quit
+			find ~/.vidos_firmware/firmware/$FIRM_DIR -name $FIRM_BASENAME -exec cp -r {}  $FIRM_LOC \; -quit
 		;;
 	esac
 done
