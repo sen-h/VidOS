@@ -6,6 +6,4 @@
 @@ -18,0 +19 @@
 +BR2_ROOTFS_POST_SCRIPT_ARGS="webm"
 @@ -30,0 +32 @@
-+BR2_PACKAGE_FFMPEG_EXTRACONF="--disable-everything --enable-libvpx --enable-decoder='vp8,vp9,opus' --enable-parser='vp8,vp9,opus' --enable-demuxer=matroska --enable-protocol=file --enable-outdev='fbdev,alsa,oss'"
-@@ -36,0 +39 @@
-+BR2_PACKAGE_LIBVPX=y
++BR2_PACKAGE_FFMPEG_EXTRACONF="--disable-everything --enable-decoder='vp8,vp9,opus' --enable-parser='vp8,vp9,opus' --enable-demuxer=matroska --enable-protocol=file --enable-outdev='fbdev,alsa,oss'"
