@@ -1,8 +1,9 @@
 #!/bin/bash
+PLATFORM=$1
 GIT_COMMIT_HASH=$(git log -1 --format=%h)
 VIDOS_VER="v2.1.0-"$GIT_COMMIT_HASH
 VOBU_VER="v1.4.0-"$GIT_COMMIT_HASH
-BUILDROOT_LATEST="buildroot-2023.05.1"
+BUILDROOT_LATEST=buildroot-2023.05.1
 SYSTEMD_LATEST="v252.4"
 KERNEL_LATEST="6.1.44"
 KERNEL_LATEST_MAJOR=$(echo $KERNEL_LATEST | head -c 1)
@@ -20,14 +21,14 @@ mkdir -p vidos_release_$NAME-source-and-licence-info/
 pushd $BUILDROOT_LATEST
 
 for FORMAT in "${SUPPORTED_FORMATS[@]}"; do
-        make O=$FORMAT -j$(nproc) legal-info
-	cp -r $FORMAT/legal-info/* ../vidos_release_$NAME-source-and-licence-info/
-	cp -r $FORMAT/legal-info/manifest.csv ../vidos_release_$NAME-source-and-licence-info/$FORMAT-manifest.csv
-	cp -r $FORMAT/legal-info/host-manifest.csv ../vidos_release_$NAME-source-and-licence-info/$FORMAT-host-manifest.csv
-	cp -r $FORMAT/legal-info/buildroot.config ../vidos_release_$NAME-source-and-licence-info/$FORMAT-buildroot.config
+        make O=$PLATFORM/$FORMAT -j$(nproc) legal-info
+	cp -r $PLATFORM/$FORMAT/legal-info/* ../vidos_release_$NAME-source-and-licence-info/
+	cp -r $PLATFORM/$FORMAT/legal-info/manifest.csv ../vidos_release_$NAME-source-and-licence-info/$FORMAT-manifest.csv
+	cp -r $PLATFORM/$FORMAT/legal-info/host-manifest.csv ../vidos_release_$NAME-source-and-licence-info/$FORMAT-host-manifest.csv
+	cp -r $PLATFORM/$FORMAT/legal-info/buildroot.config ../vidos_release_$NAME-source-and-licence-info/$FORMAT-buildroot.config
 
-	echo $FORMAT/images/vidos_release/$FORMAT"_build"/$FORMAT"_kernel"
-	cp -r $FORMAT/images/vidos_release/$FORMAT"_build"/* ../vidos_release_$NAME/vidos_components-$VIDOS_VER
+	echo $PLATFORM/$FORMAT/images/vidos_release/$FORMAT"_build"/$FORMAT"_kernel"
+	cp -r $PLATFORM/$FORMAT/images/vidos_release/$FORMAT"_build"/* ../vidos_release_$NAME/vidos_components-$VIDOS_VER
 done
 
 	mv ../vidos_release_$NAME-source-and-licence-info/host-sources ../vidos_release_$NAME-source-and-licence-info/combined-host-sources
@@ -42,7 +43,7 @@ done
 popd
 
 scripts/prepare_release_readme.sh
-cp -r vidos_x86_64/vobu.sh vidos_x86_64/test_vids LICENSE.md release_paperwork/README.md release_paperwork/*install.sh vidos_release_$NAME/
+cp -r vidos/vobu.sh vidos/test_vids LICENSE.md release_paperwork/README.md release_paperwork/*install.sh vidos_release_$NAME/
 cp release_paperwork/LICENCE_README LICENCE.md vidos_release_$NAME-source-and-licence-info/
 
 wget https://cdn.kernel.org/pub/linux/kernel/v$KERNEL_LATEST_MAJOR.x/linux-$KERNEL_LATEST.tar.xz -O vidos_release_$NAME-source-and-licence-info/linux-$KERNEL_LATEST.tar.xz

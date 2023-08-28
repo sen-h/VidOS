@@ -1,7 +1,7 @@
 
 #!/usr/bin/env bash
 set -e
-
+echo "binaries dir" $BINARIES_DIR
 BOARD_DIR=$(dirname "$0")
 
 VIDOS_ISO9660=vidos_iso9660
