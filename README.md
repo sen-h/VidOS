@@ -1,3 +1,5 @@
+# WARNING: this project is no longer being developed on github, please head on over to codeberg: https://codeberg.org/sen-h/VidOS
+
 # VidOS
 
 Complete single purpose linux system for x86-64 that just plays videos.
